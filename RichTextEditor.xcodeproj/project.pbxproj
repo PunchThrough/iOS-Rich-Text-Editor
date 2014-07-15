@@ -100,6 +100,9 @@
 		1AFAED8617C804AB00E450B0 /* numlist@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFAED8417C804AB00E450B0 /* numlist@2x.png */; };
 		1AFAED8717C804AB00E450B0 /* bullist@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFAED8517C804AB00E450B0 /* bullist@2x.png */; };
 		1AFAED8917C80FC600E450B0 /* dropDownTriangle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFAED8817C80FC600E450B0 /* dropDownTriangle@2x.png */; };
+		969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */; };
+		969DE81519757BB20005A2CC /* MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81419757BB20005A2CC /* MyRichTextEditor.m */; };
+		969DE81819757CED0005A2CC /* MyRichTextEditorToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81719757CED0005A2CC /* MyRichTextEditorToolbar.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,6 +233,14 @@
 		1AFAED8417C804AB00E450B0 /* numlist@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "numlist@2x.png"; sourceTree = "<group>"; };
 		1AFAED8517C804AB00E450B0 /* bullist@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bullist@2x.png"; sourceTree = "<group>"; };
 		1AFAED8817C80FC600E450B0 /* dropDownTriangle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropDownTriangle@2x.png"; sourceTree = "<group>"; };
+		969DE80C19757A060005A2CC /* RichTextEditor+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RichTextEditor+Protected.h"; sourceTree = "<group>"; };
+		969DE81019757B970005A2CC /* RichTextEditorLinkPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RichTextEditorLinkPickerViewController.h; sourceTree = "<group>"; };
+		969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RichTextEditorLinkPickerViewController.m; sourceTree = "<group>"; };
+		969DE81319757BB20005A2CC /* MyRichTextEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyRichTextEditor.h; path = RichTextEditor/MyRichTextEditor.h; sourceTree = SOURCE_ROOT; };
+		969DE81419757BB20005A2CC /* MyRichTextEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyRichTextEditor.m; path = RichTextEditor/MyRichTextEditor.m; sourceTree = SOURCE_ROOT; };
+		969DE81619757CED0005A2CC /* MyRichTextEditorToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorToolbar.h; sourceTree = SOURCE_ROOT; };
+		969DE81719757CED0005A2CC /* MyRichTextEditorToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorToolbar.m; sourceTree = SOURCE_ROOT; };
+		969DE8191975941E0005A2CC /* RichTextEditorToolbar+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RichTextEditorToolbar+Protected.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,6 +270,10 @@
 		153F9554179F9953005B2487 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				969DE81319757BB20005A2CC /* MyRichTextEditor.h */,
+				969DE81419757BB20005A2CC /* MyRichTextEditor.m */,
+				969DE81019757B970005A2CC /* RichTextEditorLinkPickerViewController.h */,
+				969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */,
 				153F9555179F9953005B2487 /* Assets */,
 				153F955A179F9953005B2487 /* Categories */,
 				153F9561179F9953005B2487 /* iphone Popover */,
@@ -278,6 +293,8 @@
 				153F9581179F9953005B2487 /* RichTextEditorFontSizePickerViewController.h */,
 				153F9582179F9953005B2487 /* RichTextEditorFontSizePickerViewController.m */,
 				153F9583179F9953005B2487 /* RichTextEditorPopover.h */,
+				969DE81619757CED0005A2CC /* MyRichTextEditorToolbar.h */,
+				969DE81719757CED0005A2CC /* MyRichTextEditorToolbar.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -331,6 +348,8 @@
 		153F955A179F9953005B2487 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				969DE8191975941E0005A2CC /* RichTextEditorToolbar+Protected.h */,
+				969DE80C19757A060005A2CC /* RichTextEditor+Protected.h */,
 				153F955B179F9953005B2487 /* NSAttributedString+RichTextEditor.h */,
 				153F955C179F9953005B2487 /* NSAttributedString+RichTextEditor.m */,
 				153F955D179F9953005B2487 /* UIFont+RichTextEditor.h */,
@@ -650,12 +669,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				969DE81819757CED0005A2CC /* MyRichTextEditorToolbar.m in Sources */,
 				153F959D179F9953005B2487 /* WEPopoverContainerView.m in Sources */,
 				153F95A4179F9953005B2487 /* RichTextEditorToolbar.m in Sources */,
+				969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */,
 				153F959C179F9953005B2487 /* UIBarButtonItem+WEPopover.m in Sources */,
 				153F95A3179F9953005B2487 /* RichTextEditorFontSizePickerViewController.m in Sources */,
 				153F958B179F9953005B2487 /* UIFont+RichTextEditor.m in Sources */,
 				1583891F1735A5D7006DE713 /* main.m in Sources */,
+				969DE81519757BB20005A2CC /* MyRichTextEditor.m in Sources */,
 				153F959E179F9953005B2487 /* WEPopoverController.m in Sources */,
 				153F95A2179F9953005B2487 /* RichTextEditorFontPickerViewController.m in Sources */,
 				153F95A0179F9953005B2487 /* RichTextEditor.m in Sources */,

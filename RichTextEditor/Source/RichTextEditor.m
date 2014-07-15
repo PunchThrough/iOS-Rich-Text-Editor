@@ -77,9 +77,7 @@
     self.borderColor = [UIColor lightGrayColor];
     self.borderWidth = 1.0;
 
-	self.toolBar = [[RichTextEditorToolbar alloc] initWithFrame:CGRectMake(0, 0, [self currentScreenBoundsDependOnOrientation].size.width, RICHTEXTEDITOR_TOOLBAR_HEIGHT)
-													   delegate:self
-													 dataSource:self];
+    [self initializeToolbar];
 	
 	self.typingAttributesInProgress = NO;
 	self.defaultIndentationSize = 15;
@@ -96,6 +94,14 @@
 													  [self deleteBulletListWhenApplicable];
 												  }];
 }
+
+- (void)initializeToolbar
+{
+	self.toolBar = [[RichTextEditorToolbar alloc] initWithFrame:CGRectMake(0, 0, [self currentScreenBoundsDependOnOrientation].size.width, RICHTEXTEDITOR_TOOLBAR_HEIGHT)
+													   delegate:self
+													 dataSource:self];
+}
+
 
 #pragma mark - Override Methods -
 
