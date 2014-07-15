@@ -66,14 +66,10 @@
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder
+- (void)awakeFromNib
 {
-	if (self = [super initWithCoder:aDecoder])
-	{
-		[self commonInitialization];
-	}
-	
-	return self;
+    [super awakeFromNib];
+    [self commonInitialization];
 }
 
 - (void)commonInitialization
