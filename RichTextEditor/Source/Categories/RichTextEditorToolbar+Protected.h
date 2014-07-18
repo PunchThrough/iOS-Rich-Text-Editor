@@ -14,5 +14,7 @@
 - (void)populateToolbar;
 - (UIView *)separatorView;
 - (void)addView:(UIView *)view afterView:(UIView *)otherView withSpacing:(BOOL)space;
-
+- (RichTextEditorToggleButton *)buttonWithImageNamed:(NSString *)image width:(NSInteger)width andSelector:(SEL)selector;
+- (void)presentViewController:(UIViewController *)viewController fromView:(UIView *)view;
+- (void)dismissViewController;
 @end

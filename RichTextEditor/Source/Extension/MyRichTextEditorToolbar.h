@@ -8,23 +8,15 @@
 
 #import "RichTextEditorToolbar.h"
 #import "RichTextEditorToolbar+Protected.h"
-
-typedef enum {
-	MyRichTextEditorLeftParen = 1 << 17,
-	MyRichTextEditorRightParen = 1 << 18,
-	MyRichTextEditorLeftBracket = 1 << 19,
-	MyRichTextEditorRightBracket = 1 << 20,
-	MyRichTextEditorLeftBrace = 1 << 21,
-	MyRichTextEditorRightBrace = 1 << 22,
-	MyRichTextEditorAll = 1 << 31,
-} MyRichTextEditorFeature;
+#import "MyRichTextEditorMacroPicker.h"
 
 @protocol MyRichTextEditorToolbarDataSource <RichTextEditorToolbarDataSource>
-- (void)insertText:(NSString*)text;
+- (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset;
 @end
 
 @interface MyRichTextEditorToolbar : RichTextEditorToolbar
-
 @property (nonatomic, weak) id <MyRichTextEditorToolbarDataSource> dataSource;
 
 @end
+
+

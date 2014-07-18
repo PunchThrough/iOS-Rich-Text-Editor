@@ -47,9 +47,5 @@
 	return UIModalTransitionStyleFlipHorizontal;
 }*/
 
-- (RichTextEditorFeature)featuresEnabledForRichTextEditor:(RichTextEditor *)richTextEditor
-{
-	return MyRichTextEditorAll;
-}
 
 @end

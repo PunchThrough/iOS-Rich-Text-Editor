@@ -21,6 +21,8 @@
 	self.toolBar = [[MyRichTextEditorToolbar alloc] initWithFrame:CGRectMake(0, 0, [self currentScreenBoundsDependOnOrientation].size.width, RICHTEXTEDITOR_TOOLBAR_HEIGHT)
 													   delegate:self
 													 dataSource:self];
+
+    self.autocorrectionType = UITextAutocorrectionTypeNo;
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
@@ -30,9 +32,13 @@
 
 #pragma mark MyRichTextEditorToolbarDataSource
 
-- (void)insertText:(NSString *)text
+- (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset
 {
     [super insertText:text];
+    NSRange selectedRange = self.selectedRange;
+    selectedRange.location -= text.length;
+    selectedRange.location += cursorOffset;
+    self.selectedRange = selectedRange;
 }
 
 @end
