@@ -1,5 +1,5 @@
 //
-//  RichTextEditorFontViewController.h
+//  RichTextEditorFontSizePickerViewController.h
 //  RichTextEdtor
 //
 //  Created by Aryan Gh on 7/21/13.
@@ -26,13 +26,10 @@
 // THE SOFTWARE.
 
 #import <UIKit/UIKit.h>
-#import "RichTextEditorFontPicker.h"
+#import "MyRichTextEditorMacroPicker.h"
 
-@interface RichTextEditorFontPickerViewController : UIViewController <RichTextEditorFontPicker, UITableViewDelegate, UITableViewDataSource>
-
-@property (nonatomic, weak) id <RichTextEditorFontPickerViewControllerDelegate> delegate;
-@property (nonatomic, weak) id <RichTextEditorFontPickerViewControllerDataSource> dataSource;
+@interface MyRichTextEditorCategoryViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+- (id)initWithJson:(NSDictionary*)json;
 @property (nonatomic, strong) UITableView *tableview;
-@property (nonatomic, strong) NSArray *fontNames;
-
+@property (nonatomic, strong, readonly) NSArray *json;
 @end
