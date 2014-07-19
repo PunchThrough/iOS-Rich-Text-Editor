@@ -7,6 +7,7 @@
 //
 
 #import "RichTextEditorTests.h"
+#import "MyRichTextEditorHelper.h"
 
 @implementation RichTextEditorTests
 
@@ -24,9 +25,29 @@
     [super tearDown];
 }
 
-- (void)testExample
+- (void)testFunction1
 {
-    XCTFail(@"Unit tests are not implemented yet in RichTextEditorTests");
+    MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
+    UITextView *textView = [[UITextView alloc] init];
+    textView.text = @"void myFunction() {}";
+    NSRange range = NSMakeRange(textView.text.length-1, 0);
+    [helper textView:textView shouldChangeTextInRange:range replacementText:@"\n"];
+    NSString *result = @"void myFunction() {\n    \n}";
+    XCTAssertTrue([textView.text isEqualToString:result], @"");
+    XCTAssertEqual(textView.selectedRange.location, result.length-2, @"");
 }
+
+- (void)testFunction2
+{
+    MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
+    UITextView *textView = [[UITextView alloc] init];
+    textView.text = @"void myFunction()\n{}";
+    NSRange range = NSMakeRange(textView.text.length-1, 0);
+    [helper textView:textView shouldChangeTextInRange:range replacementText:@"\n"];
+    NSString *result = @"void myFunction()\n{\n    \n}";
+    XCTAssertTrue([textView.text isEqualToString:result], @"");
+    XCTAssertEqual(textView.selectedRange.location, result.length-2, @"");
+}
+
 
 @end

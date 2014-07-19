@@ -102,6 +102,9 @@
 		1AFAED8917C80FC600E450B0 /* dropDownTriangle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFAED8817C80FC600E450B0 /* dropDownTriangle@2x.png */; };
 		96097EC919789B7400BE0230 /* MyNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96097EC819789B7400BE0230 /* MyNavViewController.m */; };
 		969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */; };
+		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
+		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
+		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96DCE82919774EB5001108B0 /* menu.json in Resources */ = {isa = PBXBuildFile; fileRef = 96DCE82819774EB5001108B0 /* menu.json */; };
 		96DCE82C1977686A001108B0 /* MyRichTextEditorToggleButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 96DCE82B1977686A001108B0 /* MyRichTextEditorToggleButton.m */; };
 		96E84B75197608B00079964C /* MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E84B72197608B00079964C /* MyRichTextEditor.m */; };
@@ -243,6 +246,9 @@
 		969DE81019757B970005A2CC /* RichTextEditorLinkPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RichTextEditorLinkPickerViewController.h; sourceTree = "<group>"; };
 		969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RichTextEditorLinkPickerViewController.m; sourceTree = "<group>"; };
 		969DE8191975941E0005A2CC /* RichTextEditorToolbar+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RichTextEditorToolbar+Protected.h"; sourceTree = "<group>"; };
+		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
+		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
+		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
 		96DCE82819774EB5001108B0 /* menu.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = menu.json; sourceTree = "<group>"; };
 		96DCE82A1977686A001108B0 /* MyRichTextEditorToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorToggleButton.h; sourceTree = "<group>"; };
 		96DCE82B1977686A001108B0 /* MyRichTextEditorToggleButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorToggleButton.m; sourceTree = "<group>"; };
@@ -464,6 +470,7 @@
 				158389241735A5D7006DE713 /* Default.png */,
 				158389261735A5D7006DE713 /* Default@2x.png */,
 				158389281735A5D7006DE713 /* Default-568h@2x.png */,
+				96D888611979EE5D0018DA8C /* examplesketch.ino */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -518,6 +525,8 @@
 				96DCE82B1977686A001108B0 /* MyRichTextEditorToggleButton.m */,
 				96097EC719789B7400BE0230 /* MyNavViewController.h */,
 				96097EC819789B7400BE0230 /* MyNavViewController.m */,
+				96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */,
+				96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */,
 			);
 			name = Extension;
 			path = Source/Extension;
@@ -634,6 +643,7 @@
 				15C4132017A4444B0073D047 /* justifyleft.png in Resources */,
 				15C4132117A4444B0073D047 /* justifyright.png in Resources */,
 				15C4132217A4444B0073D047 /* link.png in Resources */,
+				96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */,
 				15C4132317A4444B0073D047 /* numlist.png in Resources */,
 				15C4132417A4444B0073D047 /* outdent.png in Resources */,
 				15C4132517A4444B0073D047 /* redo.png in Resources */,
@@ -673,6 +683,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				158389441735A5D7006DE713 /* InfoPlist.strings in Resources */,
+				96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,6 +723,7 @@
 				153F959E179F9953005B2487 /* WEPopoverController.m in Sources */,
 				153F95A2179F9953005B2487 /* RichTextEditorFontPickerViewController.m in Sources */,
 				96E84B75197608B00079964C /* MyRichTextEditor.m in Sources */,
+				96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */,
 				153F95A0179F9953005B2487 /* RichTextEditor.m in Sources */,
 				153F958C179F9953005B2487 /* UIView+RichTextEditor.m in Sources */,
 				153F959F179F9953005B2487 /* WETouchableView.m in Sources */,

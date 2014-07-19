@@ -46,6 +46,7 @@
     SEL selector = @selector(btnSelected:);
 
 	MyRichTextEditorToggleButton *button = [[MyRichTextEditorToggleButton alloc] initWithFrame:CGRectZero json:json];
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
 	[button addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside];
 	[button setFrame:CGRectMake(0, 0, [width intValue], 0)];
 	[button.titleLabel setFont:[UIFont boldSystemFontOfSize:10]];

@@ -10,6 +10,6 @@
 #import "MyRichTextEditor.h"
 #import "MyRichTextEditorToolbar.h"
 
-@interface ViewController : UIViewController <RichTextEditorDataSource>
+@interface ViewController : UIViewController
 
 @end

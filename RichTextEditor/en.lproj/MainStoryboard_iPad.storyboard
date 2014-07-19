@@ -25,7 +25,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
                                     <outlet property="dataSource" destination="2" id="F33-Xn-MUk"/>
-                                    <outlet property="delegate" destination="2" id="Wxf-uL-zWr"/>
+                                    <outlet property="delegate" destination="jjZ-Ik-BL6" id="hTG-nO-1iR"/>
                                 </connections>
                             </textView>
                         </subviews>
@@ -37,8 +37,12 @@
                             <constraint firstItem="Yqi-K2-B6M" firstAttribute="top" secondItem="R4M-Dm-jnj" secondAttribute="bottom" constant="20" symbolic="YES" id="rg4-cc-CZo"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="myRichTextEditor" destination="Yqi-K2-B6M" id="fGk-gd-u0z"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>
+                <customObject id="jjZ-Ik-BL6" customClass="MyRichTextEditorHelper"/>
             </objects>
         </scene>
     </scenes>

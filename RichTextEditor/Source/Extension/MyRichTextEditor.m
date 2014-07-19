@@ -23,6 +23,8 @@
 													 dataSource:self];
 
     self.autocorrectionType = UITextAutocorrectionTypeNo;
+    self.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.spellCheckingType = UITextSpellCheckingTypeNo;
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
