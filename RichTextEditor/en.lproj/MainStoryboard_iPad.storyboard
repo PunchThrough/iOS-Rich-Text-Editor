@@ -25,6 +25,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
                                     <outlet property="dataSource" destination="2" id="F33-Xn-MUk"/>
+                                    <outlet property="keyboardHeight" destination="aLU-4g-soB" id="iX4-rf-oYX"/>
                                 </connections>
                             </textView>
                         </subviews>

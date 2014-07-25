@@ -25,15 +25,16 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
                                     <outlet property="dataSource" destination="2" id="0g5-59-77a"/>
+                                    <outlet property="keyboardHeight" destination="Jzi-MI-Cvi" id="unp-fJ-zWT"/>
                                 </connections>
                             </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="ogf-QZ-Hbn" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="1Em-a6-2Kf"/>
+                            <constraint firstItem="TAn-d8-hoO" firstAttribute="top" secondItem="ogf-QZ-Hbn" secondAttribute="bottom" id="Jzi-MI-Cvi"/>
                             <constraint firstAttribute="trailing" secondItem="ogf-QZ-Hbn" secondAttribute="trailing" id="Uxm-7f-nJ0"/>
                             <constraint firstItem="ogf-QZ-Hbn" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" symbolic="YES" id="btk-ZY-ZRE"/>
-                            <constraint firstItem="TAn-d8-hoO" firstAttribute="top" secondItem="ogf-QZ-Hbn" secondAttribute="bottom" id="fPR-Ix-bLQ"/>
                         </constraints>
                     </view>
                     <connections>

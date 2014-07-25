@@ -13,6 +13,7 @@
 
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *keyboardHeight;
 @end
 
 @implementation MyRichTextEditor
@@ -31,11 +32,48 @@
     self.commentColor = [UIColor redColor];
     self.helper = [[MyRichTextEditorHelper alloc] initWithMyRichTextEditor:self];
     self.delegate = self.helper;
+
+    [self observeKeyboard];
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
 - (void)setupMenuItems
 {
+}
+
+#pragma mark UITextViewTextDidChangeNotification
+
+// http://www.think-in-g.net/ghawk/blog/2012/09/practicing-auto-layout-an-example-of-keyboard-sensitive-layout/
+
+// The callback for frame-changing of keyboard
+- (void)keyboardDidShow:(NSNotification *)notification {
+    NSDictionary *info = [notification userInfo];
+    NSValue *kbFrame = [info objectForKey:UIKeyboardFrameEndUserInfoKey];
+    NSTimeInterval animationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    CGRect keyboardFrame = [kbFrame CGRectValue];
+    
+    CGFloat height = keyboardFrame.size.height;
+    
+    NSLog(@"Updating constraints.");
+    // Because the "space" is actually the difference between the bottom lines of the 2 views,
+    // we need to set a negative constant value here.
+    self.keyboardHeight.constant = height;
+    
+    [UIView animateWithDuration:animationDuration animations:^{
+        [self layoutIfNeeded];
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    self.keyboardHeight.constant = 0;
+    [UIView animateWithDuration:0.01 animations:^{
+        [self layoutIfNeeded];
+    }];
+}
+
+- (void)observeKeyboard {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
 #pragma mark MyRichTextEditorToolbarDataSource
