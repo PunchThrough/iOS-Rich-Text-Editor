@@ -82,6 +82,7 @@
     NSDictionary *json  = btn.json;
     if ([json[@"type"] isEqualToString:@"text"]) {
         [self.dataSource insertText:json[@"value"] cursorOffset:[json[@"offset"] intValue]];
+        [[UIDevice currentDevice] playInputClick];
     }
     else if ([json[@"type"] isEqualToString:@"category"]) {
         if (!self.navVC) {

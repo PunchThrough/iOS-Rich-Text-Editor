@@ -9,8 +9,10 @@
 #import "RichTextEditor.h"
 #import "MyRichTextEditor.h"
 #import "MyRichTextEditorToolbar.h"
+#import "MyRichTextEditorHelper.h"
 
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
+@property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @end
 
 @implementation MyRichTextEditor
@@ -25,6 +27,12 @@
     self.autocorrectionType = UITextAutocorrectionTypeNo;
     self.autocapitalizationType = UITextAutocapitalizationTypeNone;
     self.spellCheckingType = UITextSpellCheckingTypeNo;
+    self.helper = [[MyRichTextEditorHelper alloc] init];
+    self.delegate = self.helper;
+}
+
+- (void)addTextChangeObservers {
+    
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
@@ -36,7 +44,7 @@
 
 - (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset
 {
-    [super insertText:text];
+    [self.helper textView:self shouldChangeTextInRange:self.selectedRange replacementText:text];
     NSRange selectedRange = self.selectedRange;
     selectedRange.location -= text.length;
     selectedRange.location += cursorOffset;

@@ -334,42 +334,42 @@
   "text":"'",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"'",
   "offset":1
   },
   {
   "text":"+",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"+",
   "offset":1
   },
   {
   "text":"-",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"-",
   "offset":1
   },
   {
   "text":"*",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"*",
   "offset":1
   },
   {
   "text":"/",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"/",
   "offset":1
   },
   {
   "text":"%",
   "width":36,
   "type":"text",
-  "value":";",
+  "value":"%",
   "offset":1
   }
   ]

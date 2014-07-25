@@ -84,8 +84,12 @@
 	
 	[self setupMenuItems];
 	[self updateToolbarState];
-	
-	// When text changes check to see if we need to add bullet, or delete bullet on backspace
+    [self addTextChangeObservers];
+}
+
+- (void)addTextChangeObservers
+{
+    // When text changes check to see if we need to add bullet, or delete bullet on backspace
 	[[NSNotificationCenter defaultCenter] addObserverForName:UITextViewTextDidChangeNotification
 													  object:self
 													   queue:nil
@@ -619,7 +623,7 @@
 		[attributedString addAttributes:[NSDictionary dictionaryWithObject:attribute forKey:key] range:range];
 		
 		[self setAttributedText:attributedString];
-		[self setSelectedRange:range];
+//		[self setSelectedRange:NSMakeRange(range.location+range.length, 0)];
 	}
 	// If no text is selected apply attributes to typingAttribute
 	else
@@ -633,13 +637,13 @@
 
 - (void)removeAttributeForKey:(NSString *)key atRange:(NSRange)range
 {
-	NSRange initialRange = self.selectedRange;
+//	NSRange initialRange = self.selectedRange;
 	
 	NSMutableAttributedString *attributedString = [self.attributedText mutableCopy];
 	[attributedString removeAttribute:key range:range];
 	self.attributedText = attributedString;
 	
-	[self setSelectedRange:initialRange];
+//	[self setSelectedRange:initialRange];
 }
 
 - (void)removeAttributeForKeyFromSelectedRange:(NSString *)key

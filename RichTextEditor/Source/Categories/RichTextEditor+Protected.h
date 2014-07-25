@@ -14,5 +14,8 @@
 - (void)setupMenuItems;
 - (void)populateToolbar;
 - (void)setText:(NSString *)text;
+- (void)applyAttributes:(id)attribute forKey:(NSString *)key atRange:(NSRange)range;
+- (void)removeAttributeForKey:(NSString *)key atRange:(NSRange)range;
+- (void)addTextChangeObservers;
 @property (nonatomic, strong) RichTextEditorToolbar *toolBar;
 @end

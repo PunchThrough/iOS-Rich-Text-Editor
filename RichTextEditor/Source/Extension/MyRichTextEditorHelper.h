@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MyRichTextEditor.h"
 
 @interface MyRichTextEditorHelper : NSObject <UITextViewDelegate>
 @property (nonatomic, strong) NSString *indentation;
