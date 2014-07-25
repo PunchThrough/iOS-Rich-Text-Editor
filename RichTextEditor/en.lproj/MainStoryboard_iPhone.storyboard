@@ -25,7 +25,6 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
                                     <outlet property="dataSource" destination="2" id="0g5-59-77a"/>
-                                    <outlet property="delegate" destination="cql-YA-6uh" id="xTP-0v-8s2"/>
                                 </connections>
                             </textView>
                         </subviews>
@@ -42,7 +41,6 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
-                <customObject id="cql-YA-6uh" customClass="MyRichTextEditorHelper"/>
             </objects>
         </scene>
     </scenes>
