@@ -38,7 +38,7 @@ typedef enum {
     [tokens removeAllObjects];
     [tokenKeys removeAllObjects];
     
-    NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n"] text:text];
+    NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n",@"\"",@"'"] text:text];
     NSArray *commentKeys = [[commentsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
     CommentState state = CommentStateUnknown;
     NSNumber *prevKey;
@@ -47,9 +47,10 @@ typedef enum {
         key = commentKeys[j];
         NSString *symbol = commentsDic[key];
         if ([symbol isEqualToString:@"/*"]) {
-            state = CommentStateSlashStar;
-            prevKey = key;
-            continue;
+            if (state != CommentStateSlashSlash && state != CommentStateSlashStar) {
+                state = CommentStateSlashStar;
+                prevKey = key;
+            }
         }
         else if ([symbol isEqualToString:@"*/"]) {
             if (state == CommentStateSlashStar) {
@@ -89,7 +90,7 @@ typedef enum {
             NSNumber *key = sortedKeys[i];
             NSDictionary *token = tokens[key];
             if ([token[@"location"] integerValue] > 0) {
-                int length = [token[@"location"] integerValue];
+                int length = [token[@"location"] intValue];
                 if (length>0) {
                     nonCommentTokens[@0] = @{@"comment":@0, @"location":@(0), @"length":@(length)};
                 }
@@ -98,7 +99,7 @@ typedef enum {
                 }
             }
         }
-        else if (i == tokenKeys.count-1) {
+        else if (i == sortedKeys.count-1) {
             NSNumber *key = sortedKeys[i];
             NSDictionary *token = tokens[key];
             if ([token[@"location"] integerValue]+[token[@"length"] integerValue] < text.length) {
@@ -123,7 +124,7 @@ typedef enum {
                 continue;
             }
             else {
-                nonCommentTokens[@(location)] = @{@"comment":@0, @"location":@(location), @"length":@(length-1)};
+                nonCommentTokens[@(location)] = @{@"comment":@0, @"location":@(location), @"length":@(length)};
             }
         }
     }

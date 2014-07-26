@@ -628,7 +628,7 @@
 		[self applyAttributeToTypingAttribute:attribute forKey:key];
 	}
 	
-	[self updateToolbarState];
+//	[self updateToolbarState];
 }
 
 - (void)removeAttributeForKey:(NSString *)key atRange:(NSRange)range

@@ -115,17 +115,13 @@
         else {
             // when single char typed, check for replace { for {} , ...
             if (text.length == 1) {
-                BOOL found = NO;
-                for (NSString *key in self.textReplaceDic) {
-                    if ([key isEqualToString:text]) {
-                        NSDictionary *dic = self.textReplaceDic[key];
+                NSDictionary *dic = [self.textReplaceDic objectForKey:text];
+                    if (dic) {
                         [textView insertText:dic[@"value"]];
-                        found = YES;
                     }
-                }
-                if (!found) {
-                    [textView insertText:text];
-                }
+                    else {
+                        [textView insertText:text];
+                    }
             }
         }
         
