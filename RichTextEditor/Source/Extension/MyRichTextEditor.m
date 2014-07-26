@@ -10,10 +10,15 @@
 #import "MyRichTextEditor.h"
 #import "MyRichTextEditorToolbar.h"
 #import "MyRichTextEditorHelper.h"
+#import "MyRichTextEditorParser.h"
 
-@interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
+@interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource, UITextViewDelegate>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
+@property (nonatomic, strong) MyRichTextEditorParser *parser;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *keyboardHeight;
+@property (nonatomic, strong) NSMutableDictionary *tokens;
+@property (nonatomic, strong) NSMutableArray *tokenKeys;
+
 @end
 
 @implementation MyRichTextEditor
@@ -30,15 +35,114 @@
     self.spellCheckingType = UITextSpellCheckingTypeNo;
     
     self.commentColor = [UIColor redColor];
-    self.helper = [[MyRichTextEditorHelper alloc] initWithMyRichTextEditor:self];
-    self.delegate = self.helper;
+    self.helper = [[MyRichTextEditorHelper alloc] init];
+    self.parser = [[MyRichTextEditorParser alloc] init];
+    self.delegate = self;
 
+    self.indentation = @"    ";
+    self.commentColor = [UIColor redColor];
+    
+    self.tokens = [@{} mutableCopy];
+    self.tokenKeys = [@[] mutableCopy];
+    
     [self observeKeyboard];
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
 - (void)setupMenuItems
 {
+}
+
+#pragma mark UITextViewDelegate
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    
+    if ([text isEqualToString:@"\n"]) {
+        NSString *beginningText = [textView.text substringToIndex:range.location];
+        NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"{"] text:beginningText].count;
+        NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"}"] text:beginningText].count;
+        int indentationCt = leftBrackers - rightBrackers;
+        if (indentationCt<0) {
+            indentationCt = 0;
+        }
+        BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
+        textView.selectedRange = range;
+        
+        [textView insertText:@"\n"];
+        
+        for (int i=0; i<indentationCt; i++) {
+            [textView insertText:self.indentation];
+        }
+        
+        if (inBrackets) {
+            [textView insertText:@"\n"];
+            for (int i=0; i<indentationCt-1; i++) {
+                [textView insertText:self.indentation];
+            }
+            NSRange range = textView.selectedRange;
+            range.location -= (1 + self.indentation.length*(indentationCt-1));
+            textView.selectedRange = range;
+        }
+        
+        return NO;
+    }
+    else {
+        NSRange selectedRange = textView.selectedRange;
+        // old range used to calculate how much text we need to process
+        NSDictionary *oldToken = [self.helper tokenForRange:range fromTokens:self.tokens];
+        NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
+        
+        // backspace pressed
+        if ([text isEqualToString:@""]) {
+            [textView deleteBackward];
+        }
+        // character pressed
+        else {
+            [textView insertText:text];
+        }
+        
+        // retokenize and get new range
+        [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+        NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.tokens];
+        NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
+        
+        // apply all tokens
+        NSRange bothRanges = NSUnionRange(oldRange, newRange);
+        NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.tokens tokenKeys:self.tokenKeys];
+        for (NSDictionary *token in tokens) {
+            [self applyToken:token];
+        }
+        
+        // backspace pressed
+        if ([text isEqualToString:@""]) {
+            if (selectedRange.location == 0) {
+                textView.selectedRange = NSMakeRange(0, 0);
+            }
+            else {
+                textView.selectedRange = NSMakeRange(selectedRange.location-1, 0);
+            }
+        }
+        // character pressed
+        else {
+            textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
+        }
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void)applyToken:(NSDictionary*)token {
+    if (token) {
+        NSRange range = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
+        if ([token[@"comment"] isEqualToNumber:@YES]) {
+            [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
+        }
+        else {
+            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
+        }
+    }
 }
 
 #pragma mark UITextViewTextDidChangeNotification
@@ -90,7 +194,12 @@
 - (void)loadWithText:(NSString *)text
 {
     self.text = text;
-    [self.helper formatText];
+    [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+    [self removeAttributeForKey:NSForegroundColorAttributeName atRange:NSMakeRange(0, self.text.length)];
+    for (NSNumber *tokenKey in self.tokens) {
+        NSDictionary *newToken = self.tokens[tokenKey];
+        [self applyToken:newToken];
+    }
 }
 
 @end
