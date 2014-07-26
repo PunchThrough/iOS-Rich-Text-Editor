@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Aryan Ghassemi. All rights reserved.
 //
 
-#define RICHTEXTEDITOR_TOOLBAR_HEIGHT 40
+#define RICHTEXTEDITOR_TOOLBAR_HEIGHT 44
 
 #import "RichTextEditorToggleButton.h"
 

@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Type Here" translatesAutoresizingMaskIntoConstraints="NO" id="Yqi-K2-B6M" customClass="MyRichTextEditor">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="onDrag" text="Type Here" translatesAutoresizingMaskIntoConstraints="NO" id="Yqi-K2-B6M" customClass="MyRichTextEditor">
                                 <rect key="frame" x="0.0" y="28" width="768" height="988"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.91764712329999998" green="0.92941182850000004" blue="0.94117653369999998" alpha="1" colorSpace="deviceRGB"/>

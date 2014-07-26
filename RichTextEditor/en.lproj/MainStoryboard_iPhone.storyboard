@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="type here" translatesAutoresizingMaskIntoConstraints="NO" id="ogf-QZ-Hbn" customClass="MyRichTextEditor">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="onDrag" text="type here" translatesAutoresizingMaskIntoConstraints="NO" id="ogf-QZ-Hbn" customClass="MyRichTextEditor">
                                 <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.91764712333679199" green="0.92941182851791382" blue="0.94117653369903564" alpha="1" colorSpace="deviceRGB"/>

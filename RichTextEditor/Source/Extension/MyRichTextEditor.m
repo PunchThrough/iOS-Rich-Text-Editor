@@ -18,7 +18,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *keyboardHeight;
 @property (nonatomic, strong) NSMutableDictionary *tokens;
 @property (nonatomic, strong) NSMutableArray *tokenKeys;
-
+@property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
 @end
 
 @implementation MyRichTextEditor
@@ -46,6 +46,21 @@
     self.tokenKeys = [@[] mutableCopy];
     
     [self observeKeyboard];
+    
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"text" ofType:@"json"];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    if (data) {
+        // do something useful
+    }
+    NSError *error;
+    NSArray *textJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+    if (error)
+        NSLog(@"JSONObjectWithData error: %@", error);
+    
+    self.textReplaceDic = [@{} mutableCopy];
+    for (NSDictionary *dic  in textJson) {
+        self.textReplaceDic[dic[@"text"]] = dic;
+    }
 }
 
 // override in use custom menu items (in addition to cut, copy, paste, ..)
@@ -98,7 +113,20 @@
         }
         // character pressed
         else {
-            [textView insertText:text];
+            // when single char typed, check for replace { for {} , ...
+            if (text.length == 1) {
+                BOOL found = NO;
+                for (NSString *key in self.textReplaceDic) {
+                    if ([key isEqualToString:text]) {
+                        NSDictionary *dic = self.textReplaceDic[key];
+                        [textView insertText:dic[@"value"]];
+                        found = YES;
+                    }
+                }
+                if (!found) {
+                    [textView insertText:text];
+                }
+            }
         }
         
         // retokenize and get new range
@@ -125,6 +153,7 @@
         // character pressed
         else {
             textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
+            
         }
         
         return NO;
@@ -155,10 +184,10 @@
     NSValue *kbFrame = [info objectForKey:UIKeyboardFrameEndUserInfoKey];
     NSTimeInterval animationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     CGRect keyboardFrame = [kbFrame CGRectValue];
+ 
+    BOOL isPortrait = UIDeviceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation);
+    CGFloat height = isPortrait ? keyboardFrame.size.height : keyboardFrame.size.width;
     
-    CGFloat height = keyboardFrame.size.height;
-    
-    NSLog(@"Updating constraints.");
     // Because the "space" is actually the difference between the bottom lines of the 2 views,
     // we need to set a negative constant value here.
     self.keyboardHeight.constant = height;
@@ -184,11 +213,11 @@
 
 - (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset
 {
-    [super insertText:text];
-    NSRange selectedRange = self.selectedRange;
-    selectedRange.location -= text.length;
-    selectedRange.location += cursorOffset;
-    self.selectedRange = selectedRange;
+    [self textView:self shouldChangeTextInRange:self.selectedRange replacementText:text];
+//    NSRange selectedRange = self.selectedRange;
+//    selectedRange.location -= text.length;
+//    selectedRange.location += cursorOffset;
+//    self.selectedRange = selectedRange;
 }
 
 - (void)loadWithText:(NSString *)text

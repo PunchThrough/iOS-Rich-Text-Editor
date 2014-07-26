@@ -14,7 +14,7 @@
 - (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset;
 @end
 
-@interface MyRichTextEditorToolbar : RichTextEditorToolbar
+@interface MyRichTextEditorToolbar : RichTextEditorToolbar <UIInputViewAudioFeedback>
 @property (nonatomic, weak) id <MyRichTextEditorToolbarDataSource> dataSource;
 
 @end

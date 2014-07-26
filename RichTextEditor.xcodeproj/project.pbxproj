@@ -103,6 +103,7 @@
 		96097EC919789B7400BE0230 /* MyNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96097EC819789B7400BE0230 /* MyNavViewController.m */; };
 		969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */; };
 		969E850D198323CD00A04C9C /* MyRichTextEditorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 969E850C198323CD00A04C9C /* MyRichTextEditorParser.m */; };
+		969E851319832EC700A04C9C /* text.json in Resources */ = {isa = PBXBuildFile; fileRef = 969E851219832EC700A04C9C /* text.json */; };
 		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
 		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
@@ -249,6 +250,7 @@
 		969DE8191975941E0005A2CC /* RichTextEditorToolbar+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RichTextEditorToolbar+Protected.h"; sourceTree = "<group>"; };
 		969E850B198323CD00A04C9C /* MyRichTextEditorParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorParser.h; sourceTree = "<group>"; };
 		969E850C198323CD00A04C9C /* MyRichTextEditorParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorParser.m; sourceTree = "<group>"; };
+		969E851219832EC700A04C9C /* text.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = text.json; sourceTree = "<group>"; };
 		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
 		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
 		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
@@ -459,6 +461,7 @@
 				158389311735A5D7006DE713 /* ViewController.m */,
 				158389191735A5D7006DE713 /* Supporting Files */,
 				96DCE82819774EB5001108B0 /* menu.json */,
+				969E851219832EC700A04C9C /* text.json */,
 			);
 			path = RichTextEditor;
 			sourceTree = "<group>";
@@ -671,6 +674,7 @@
 				1AFAED7417C7F9CA00E450B0 /* underline@2x.png in Resources */,
 				1AFAED7517C7F9CA00E450B0 /* bold@2x.png in Resources */,
 				1AFAED7717C8013900E450B0 /* justifyleft@2x.png in Resources */,
+				969E851319832EC700A04C9C /* text.json in Resources */,
 				1AFAED7B17C8022000E450B0 /* justifyfull@2x.png in Resources */,
 				1AFAED7C17C8022000E450B0 /* justifyright@2x.png in Resources */,
 				1AFAED7D17C8022000E450B0 /* justifycenter@2x.png in Resources */,
