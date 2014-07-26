@@ -610,16 +610,16 @@
 	{
 		NSMutableAttributedString *attributedString = [self.attributedText mutableCopy];
 		
-        // Workaround for when there is only one paragraph,
-		// sometimes the attributedString is actually longer by one then the displayed text,
-		// and this results in not being able to set to lef align anymore.
-        if (range.length == attributedString.length-1 && range.length == self.text.length)
-            ++range.length;
+//        // Workaround for when there is only one paragraph,
+//		// sometimes the attributedString is actually longer by one then the displayed text,
+//		// and this results in not being able to set to lef align anymore.
+//        if (range.length == attributedString.length-1 && range.length == self.text.length)
+//            ++range.length;
         
 		[attributedString addAttributes:[NSDictionary dictionaryWithObject:attribute forKey:key] range:range];
 		
 		[self setAttributedText:attributedString];
-		[self setSelectedRange:range];
+//		[self setSelectedRange:range];
 	}
 	// If no text is selected apply attributes to typingAttribute
 	else
@@ -633,13 +633,13 @@
 
 - (void)removeAttributeForKey:(NSString *)key atRange:(NSRange)range
 {
-	NSRange initialRange = self.selectedRange;
+//	NSRange initialRange = self.selectedRange;
 	
 	NSMutableAttributedString *attributedString = [self.attributedText mutableCopy];
 	[attributedString removeAttribute:key range:range];
 	self.attributedText = attributedString;
 	
-	[self setSelectedRange:initialRange];
+//	[self setSelectedRange:initialRange];
 }
 
 - (void)removeAttributeForKeyFromSelectedRange:(NSString *)key

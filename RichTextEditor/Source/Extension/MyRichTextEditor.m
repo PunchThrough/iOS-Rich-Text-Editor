@@ -76,7 +76,7 @@
         NSString *beginningText = [textView.text substringToIndex:range.location];
         NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"{"] text:beginningText].count;
         NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"}"] text:beginningText].count;
-        int indentationCt = leftBrackers - rightBrackers;
+        NSInteger indentationCt = leftBrackers - rightBrackers;
         if (indentationCt<0) {
             indentationCt = 0;
         }
@@ -149,7 +149,6 @@
         // character pressed
         else {
             textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
-            
         }
         
         return NO;
@@ -160,13 +159,16 @@
 
 - (void)applyToken:(NSDictionary*)token {
     if (token) {
+        // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+        self.scrollEnabled = NO;
         NSRange range = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
         if ([token[@"comment"] isEqualToNumber:@YES]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
         else {
-            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
+           [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
         }
+        self.scrollEnabled = YES;
     }
 }
 
@@ -188,9 +190,9 @@
     // we need to set a negative constant value here.
     self.keyboardHeight.constant = height;
     
-    [UIView animateWithDuration:animationDuration animations:^{
-        [self layoutIfNeeded];
-    }];
+//    [UIView animateWithDuration:animationDuration animations:^{
+//        [self layoutIfNeeded];
+//    }];
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {

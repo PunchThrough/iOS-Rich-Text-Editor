@@ -17,7 +17,7 @@
     NSUInteger min = NSUIntegerMax;
     NSNumber *keyToken;
     for (NSNumber *key in tokens) {
-        NSUInteger diff = abs([key integerValue] - range.location);
+        int diff = abs([key integerValue] - range.location);
         if (([key integerValue] <= range.location) && (diff <= min)) {
             min = diff;
             keyToken = key;
