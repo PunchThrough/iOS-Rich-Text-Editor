@@ -5,7 +5,7 @@
 //  Created by Matthew Chung on 7/15/14.
 //  Copyright (c) 2014 Aryan Ghassemi. All rights reserved.
 //
-
+#import <AudioToolbox/AudioToolbox.h>
 #import "MyRichTextEditorToolbar.h"
 #import "MyRichTextEditorToggleButton.h"
 #import "MyRichTextEditorCategoryViewController.h"
@@ -49,7 +49,7 @@
     button.titleLabel.textAlignment = NSTextAlignmentCenter;
 	[button addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside];
 	[button setFrame:CGRectMake(0, 0, [width intValue], 0)];
-	[button.titleLabel setFont:[UIFont boldSystemFontOfSize:10]];
+	[button.titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
 	[button.titleLabel setTextColor:[UIColor blackColor]];
 	[button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [button setTitle:text forState:UIControlStateNormal];
@@ -81,6 +81,7 @@
     MyRichTextEditorToggleButton *btn = (MyRichTextEditorToggleButton*)sender;
     NSDictionary *json  = btn.json;
     if ([json[@"type"] isEqualToString:@"text"]) {
+        [[UIDevice currentDevice] playInputClick];
         [self.dataSource insertText:json[@"value"] cursorOffset:[json[@"offset"] intValue]];
     }
     else if ([json[@"type"] isEqualToString:@"category"]) {
@@ -99,6 +100,7 @@
 
 - (void)richTextEditorMacroPickerViewControllerDidSelectText:(NSDictionary *)json
 {
+    [[UIDevice currentDevice] playInputClick];
     [self.dataSource insertText:json[@"value"] cursorOffset:[json[@"offset"] intValue]];
 	[self dismissViewController];
 }
@@ -106,6 +108,10 @@
 - (void)richTextEditorMacroPickerViewControllerDidSelectClose
 {
 	[self dismissViewController];
+}
+
+- (BOOL) enableInputClicksWhenVisible {
+    return YES;
 }
 
 @end

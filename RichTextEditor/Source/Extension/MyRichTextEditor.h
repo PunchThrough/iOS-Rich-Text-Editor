@@ -10,5 +10,7 @@
 #import "RichTextEditor+Protected.h"
 
 @interface MyRichTextEditor : RichTextEditor 
-
+- (void)loadWithText:(NSString *)text;
+@property (nonatomic, strong) UIColor *commentColor;
+@property (nonatomic, strong) NSString *indentation;
 @end

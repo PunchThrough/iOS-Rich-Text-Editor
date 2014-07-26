@@ -23,7 +23,7 @@
     if (filePath) {
         NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
         if (myText) {
-            self.myRichTextEditor.text = myText;
+            [self.myRichTextEditor loadWithText:myText];
         }
     }
 }

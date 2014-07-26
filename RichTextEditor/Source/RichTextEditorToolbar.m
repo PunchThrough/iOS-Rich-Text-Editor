@@ -91,50 +91,50 @@
 
 - (void)updateStateWithAttributes:(NSDictionary *)attributes
 {
-	UIFont *font = [attributes objectForKey:NSFontAttributeName];
-	NSParagraphStyle *paragraphTyle = [attributes objectForKey:NSParagraphStyleAttributeName];
-	
-	[self.btnFontSize setTitle:[NSString stringWithFormat:@"%.f", font.pointSize] forState:UIControlStateNormal];
-	[self.btnFont setTitle:font.familyName forState:UIControlStateNormal];
-	
-	self.btnBold.on = [font isBold];
-	self.btnItalic.on = [font isItalic];
-	
-	self.btnTextAlignmentLeft.on = NO;
-	self.btnTextAlignmentCenter.on = NO;
-	self.btnTextAlignmentRight.on = NO;
-	self.btnTextAlignmentJustified.on = NO;
-	self.btnParagraphFirstLineHeadIndent.on = (paragraphTyle.firstLineHeadIndent > paragraphTyle.headIndent) ? YES : NO;
-	
-	switch (paragraphTyle.alignment)
-	{
-		case NSTextAlignmentLeft:
-			self.btnTextAlignmentLeft.on = YES;
-			break;
-		case NSTextAlignmentCenter:
-			self.btnTextAlignmentCenter.on = YES;
-			break;
-			
-		case NSTextAlignmentRight:
-			self.btnTextAlignmentRight.on = YES;
-			break;
-			
-		case NSTextAlignmentJustified:
-			self.btnTextAlignmentJustified.on = YES;
-			break;
-			
-		default:
-			self.btnTextAlignmentLeft.on = YES;
-			break;
-	}
-	
-	NSNumber *existingUnderlineStyle = [attributes objectForKey:NSUnderlineStyleAttributeName];
-	self.btnUnderline.on = (!existingUnderlineStyle || existingUnderlineStyle.intValue == NSUnderlineStyleNone) ? NO :YES;
-	
-	NSNumber *existingStrikeThrough = [attributes objectForKey:NSStrikethroughStyleAttributeName];
-	self.btnStrikeThrough.on = (!existingStrikeThrough || existingStrikeThrough.intValue == NSUnderlineStyleNone) ? NO :YES;
-	
-	[self populateToolbar];
+//	UIFont *font = [attributes objectForKey:NSFontAttributeName];
+//	NSParagraphStyle *paragraphTyle = [attributes objectForKey:NSParagraphStyleAttributeName];
+//	
+//	[self.btnFontSize setTitle:[NSString stringWithFormat:@"%.f", font.pointSize] forState:UIControlStateNormal];
+//	[self.btnFont setTitle:font.familyName forState:UIControlStateNormal];
+//	
+//	self.btnBold.on = [font isBold];
+//	self.btnItalic.on = [font isItalic];
+//	
+//	self.btnTextAlignmentLeft.on = NO;
+//	self.btnTextAlignmentCenter.on = NO;
+//	self.btnTextAlignmentRight.on = NO;
+//	self.btnTextAlignmentJustified.on = NO;
+//	self.btnParagraphFirstLineHeadIndent.on = (paragraphTyle.firstLineHeadIndent > paragraphTyle.headIndent) ? YES : NO;
+//	
+//	switch (paragraphTyle.alignment)
+//	{
+//		case NSTextAlignmentLeft:
+//			self.btnTextAlignmentLeft.on = YES;
+//			break;
+//		case NSTextAlignmentCenter:
+//			self.btnTextAlignmentCenter.on = YES;
+//			break;
+//			
+//		case NSTextAlignmentRight:
+//			self.btnTextAlignmentRight.on = YES;
+//			break;
+//			
+//		case NSTextAlignmentJustified:
+//			self.btnTextAlignmentJustified.on = YES;
+//			break;
+//			
+//		default:
+//			self.btnTextAlignmentLeft.on = YES;
+//			break;
+//	}
+//	
+//	NSNumber *existingUnderlineStyle = [attributes objectForKey:NSUnderlineStyleAttributeName];
+//	self.btnUnderline.on = (!existingUnderlineStyle || existingUnderlineStyle.intValue == NSUnderlineStyleNone) ? NO :YES;
+//	
+//	NSNumber *existingStrikeThrough = [attributes objectForKey:NSStrikethroughStyleAttributeName];
+//	self.btnStrikeThrough.on = (!existingStrikeThrough || existingStrikeThrough.intValue == NSUnderlineStyleNone) ? NO :YES;
+//	
+//	[self populateToolbar];
 }
 
 #pragma mark - IBActions -

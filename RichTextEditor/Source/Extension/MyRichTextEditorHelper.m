@@ -9,52 +9,54 @@
 #import "MyRichTextEditorHelper.h"
 
 @interface MyRichTextEditorHelper()
-@property (nonatomic, strong) NSMutableArray *brackets;
 @end
 
-@implementation MyRichTextEditorHelper 
+@implementation MyRichTextEditorHelper
 
-- (id)init {
-    self = [super init];
-    if (self) {
-        self.brackets = [@[] mutableCopy];
-        self.indentation = @"    ";
+- (NSDictionary*)tokenForRange:(NSRange)range fromTokens:(NSDictionary*)tokens {
+    NSUInteger min = NSUIntegerMax;
+    NSNumber *keyToken;
+    for (NSNumber *key in tokens) {
+        NSUInteger diff = abs([key integerValue] - range.location);
+        if (([key integerValue] <= range.location) && (diff <= min)) {
+            min = diff;
+            keyToken = key;
+        }
     }
-    return self;
+    if (keyToken) {
+        NSDictionary *token = tokens[keyToken];
+        NSUInteger location = [token[@"location"] integerValue];
+        NSUInteger length = [token[@"length"] integerValue];
+        // handles case where NSIntersectionRange returns false positive
+        if (range.location == 0 && range.length == 0) {
+            if (location == 0) {
+                return token;
+            }
+        }
+        else {
+            NSRange intersectionRange = NSIntersectionRange(range, NSMakeRange(location, length));
+            if (intersectionRange.length != 0 || intersectionRange.location != 0) {
+                return token;
+            }
+        }
+    }
+    return nil;
 }
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    if ([text isEqualToString:@"\n"]) {
-        NSString *beginningText = [textView.text substringToIndex:range.location];
-        NSUInteger leftBrackers = [self occurancesOfString:@"{" text:beginningText];
-        NSUInteger rightBrackers = [self occurancesOfString:@"}" text:beginningText];
-        int indentationCt = leftBrackers - rightBrackers;
-        if (indentationCt<0) {
-            indentationCt = 0;
-        }
-        BOOL inBrackets = [self text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
-        textView.selectedRange = range;
-
-        [textView insertText:@"\n"];
-        
-        for (int i=0; i<indentationCt; i++) {
-            [textView insertText:self.indentation];
-        }
-        
-        if (inBrackets) {
-            [textView insertText:@"\n"];
-            for (int i=0; i<indentationCt-1; i++) {
-                [textView insertText:self.indentation];
+- (NSMutableArray*)tokensForRange:(NSRange)wholeRange fromTokens:(NSDictionary*)tokens tokenKeys:(NSArray*)tokenKeys {
+    NSMutableArray *retArr = nil;
+    for (NSNumber *key in tokenKeys) {
+        NSDictionary *token = tokens[key];
+        NSRange tokenRange = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
+        NSRange intersectionRange = NSIntersectionRange(wholeRange, tokenRange);
+        if (intersectionRange.length!= 0 || intersectionRange.location != 0) {
+            if (!retArr) {
+                retArr =  [@[] mutableCopy];
             }
-            NSRange range = textView.selectedRange;
-            range.location -= (1 + self.indentation.length*(indentationCt-1));
-            textView.selectedRange = range;
+            [retArr addObject:token];
         }
-
-        return NO;
     }
-
-    return YES;
+    return retArr;
 }
 
 - (BOOL)text:(NSString*)text range:(NSRange)range leftNeighbor:(NSString*)left rightNeighbor:(NSString*)right  {
@@ -70,20 +72,26 @@
     return NO;
 }
 
-// from http://stackoverflow.com/questions/2166809/number-of-occurrences-of-a-substring-in-an-nsstring
-- (NSUInteger)occurancesOfString:(NSString*)str text:(NSString*)text{
-    NSUInteger count = 0, length = [text length];
-    NSRange range = NSMakeRange(0, length);
-    while(range.location != NSNotFound)
-    {
-        range = [text rangeOfString: str options:0 range:range];
-        if(range.location != NSNotFound)
+// inspired from http://stackoverflow.com/questions/2166809/number-of-occurrences-of-a-substring-in-an-nsstring
+// returns a dic where the key is the index and value being the found string
+
+- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text {
+    NSMutableDictionary *retDic = [@{} mutableCopy];
+    NSUInteger length = [text length];
+    for (NSString *str in strArray) {
+        NSRange range = NSMakeRange(0, length);
+        while(range.location != NSNotFound)
         {
-            range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
-            count++; 
+            range = [text rangeOfString: str options:0 range:range];
+            if(range.location != NSNotFound)
+            {
+                retDic[[NSNumber numberWithInteger:range.location]] = str;
+                range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
+                continue;
+            }
         }
     }
-    return count;
+    return retDic;
 }
 
 @end
