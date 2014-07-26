@@ -38,11 +38,14 @@ typedef enum {
     [tokens removeAllObjects];
     [tokenKeys removeAllObjects];
     
+    // searching lexume
     NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n",@"\"",@"'"] text:text];
     NSArray *commentKeys = [[commentsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
     CommentState state = CommentStateUnknown;
     NSNumber *prevKey;
     NSNumber *key;
+    
+    // ruleset,
     for (int j=0; j<commentKeys.count; j++) {
         key = commentKeys[j];
         NSString *symbol = commentsDic[key];
@@ -68,7 +71,7 @@ typedef enum {
         else if ([symbol isEqualToString:@"\n"]) {
             if (state == CommentStateSlashSlash) {
                 state = CommentStateReturn;
-                tokens[prevKey] = @{@"comment":@1, @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
+                tokens[prevKey] = @{@"comment":@1, @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
             }
         }
     }
@@ -102,9 +105,23 @@ typedef enum {
         else if (i == sortedKeys.count-1) {
             NSNumber *key = sortedKeys[i];
             NSDictionary *token = tokens[key];
-            if ([token[@"location"] integerValue]+[token[@"length"] integerValue] < text.length) {
+            if ([token[@"location"] integerValue]+[token[@"length"] integerValue] < (text.length-1)) {
                 NSUInteger location = [token[@"location"] integerValue] + [token[@"length"] integerValue];
-                NSUInteger length = text.length-location;
+                NSUInteger length = (text.length-1)-location;
+                if (length==0) {
+                    continue;
+                }
+                else {
+                    nonCommentTokens[@(location)] = @{@"comment":@0, @"location":@(location), @"length":@(length)};
+                }
+            }
+            else {
+                NSNumber *secondKey = sortedKeys[i];
+                NSDictionary *secondToken = tokens[secondKey];
+                NSNumber *firstKey = sortedKeys[i-1];
+                NSDictionary *firstToken = tokens[firstKey];
+                NSUInteger location = [firstToken[@"location"] integerValue] + [firstToken[@"length"] integerValue];
+                NSUInteger length = [secondToken[@"location"] integerValue] - location;
                 if (length==0) {
                     continue;
                 }
