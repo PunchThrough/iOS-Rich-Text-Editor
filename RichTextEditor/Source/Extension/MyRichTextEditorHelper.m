@@ -74,6 +74,7 @@
 
 // inspired from http://stackoverflow.com/questions/2166809/number-of-occurrences-of-a-substring-in-an-nsstring
 // returns a dic where the key is the index and value being the found string
+// TODO : experiment with http://stackoverflow.com/questions/7489130/nsstring-find-parts-of-string-in-another-string
 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text {
     NSMutableDictionary *retDic = [@{} mutableCopy];

@@ -165,7 +165,7 @@
         // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
         self.scrollEnabled = NO;
         NSRange range = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
-        if ([token[@"comment"] isEqualToNumber:@YES]) {
+        if ([token[@"type"] isEqualToString:@"comment"]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
         else {
