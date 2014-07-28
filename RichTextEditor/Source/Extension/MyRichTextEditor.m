@@ -123,6 +123,9 @@
                         [textView insertText:text];
                     }
             }
+            else {
+                [textView insertText:text];                
+            }
         }
         
         // retokenize and get new range
@@ -180,7 +183,6 @@
 - (void)keyboardDidShow:(NSNotification *)notification {
     NSDictionary *info = [notification userInfo];
     NSValue *kbFrame = [info objectForKey:UIKeyboardFrameEndUserInfoKey];
-    NSTimeInterval animationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     CGRect keyboardFrame = [kbFrame CGRectValue];
  
     BOOL isPortrait = UIDeviceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation);
@@ -189,10 +191,6 @@
     // Because the "space" is actually the difference between the bottom lines of the 2 views,
     // we need to set a negative constant value here.
     self.keyboardHeight.constant = height;
-    
-//    [UIView animateWithDuration:animationDuration animations:^{
-//        [self layoutIfNeeded];
-//    }];
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {
@@ -212,10 +210,11 @@
 - (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset
 {
     [self textView:self shouldChangeTextInRange:self.selectedRange replacementText:text];
-//    NSRange selectedRange = self.selectedRange;
-//    selectedRange.location -= text.length;
-//    selectedRange.location += cursorOffset;
-//    self.selectedRange = selectedRange;
+}
+
+- (void)didDismissKeyboard
+{
+    [self resignFirstResponder];
 }
 
 - (void)loadWithText:(NSString *)text

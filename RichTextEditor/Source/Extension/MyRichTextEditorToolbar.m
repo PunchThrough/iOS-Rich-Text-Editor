@@ -21,10 +21,20 @@
 
 - (void)initializeButtons
 {
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"menu" ofType:@"json"];
+    NSString *filePathName;
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+    {
+        filePathName = @"menu~ipad";
+    }
+    else {
+        filePathName = @"menu~iphone";
+    }
+    
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:filePathName ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
-    if (data) {
-        // do something useful
+    if (!data) {
+        filePath = [[NSBundle mainBundle] pathForResource:@"menu" ofType:@"json"];
+        data = [NSData dataWithContentsOfFile:filePath];
     }
     NSError *error;
     self.menuJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -93,6 +103,11 @@
         
         self.navVC.pickerDelegate = self;
         [self presentViewController:self.navVC fromView:sender];
+    }
+    else if ([json[@"type"] isEqualToString:@"selector"]) {
+        if ([json[@"value"] isEqualToString:@"dismissKeyboard"]) {
+            [self.dataSource didDismissKeyboard];
+        }
     }
 }
 

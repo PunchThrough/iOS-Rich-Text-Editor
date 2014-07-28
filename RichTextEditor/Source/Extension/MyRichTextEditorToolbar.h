@@ -12,6 +12,7 @@
 
 @protocol MyRichTextEditorToolbarDataSource <RichTextEditorToolbarDataSource>
 - (void)insertText:(NSString *)text cursorOffset:(NSUInteger)cursorOffset;
+- (void)didDismissKeyboard;
 @end
 
 @interface MyRichTextEditorToolbar : RichTextEditorToolbar <UIInputViewAudioFeedback>

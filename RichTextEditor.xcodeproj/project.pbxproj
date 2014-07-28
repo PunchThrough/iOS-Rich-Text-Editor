@@ -104,10 +104,11 @@
 		969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DE81119757B970005A2CC /* RichTextEditorLinkPickerViewController.m */; };
 		969E850D198323CD00A04C9C /* MyRichTextEditorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 969E850C198323CD00A04C9C /* MyRichTextEditorParser.m */; };
 		969E851319832EC700A04C9C /* text.json in Resources */ = {isa = PBXBuildFile; fileRef = 969E851219832EC700A04C9C /* text.json */; };
+		96A07AEA19844E2F0025561B /* menu~ipad.json in Resources */ = {isa = PBXBuildFile; fileRef = 96A07AE819844E2F0025561B /* menu~ipad.json */; };
+		96A07AEB19844E2F0025561B /* menu~iphone.json in Resources */ = {isa = PBXBuildFile; fileRef = 96A07AE919844E2F0025561B /* menu~iphone.json */; };
 		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
 		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
-		96DCE82919774EB5001108B0 /* menu.json in Resources */ = {isa = PBXBuildFile; fileRef = 96DCE82819774EB5001108B0 /* menu.json */; };
 		96DCE82C1977686A001108B0 /* MyRichTextEditorToggleButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 96DCE82B1977686A001108B0 /* MyRichTextEditorToggleButton.m */; };
 		96E84B75197608B00079964C /* MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E84B72197608B00079964C /* MyRichTextEditor.m */; };
 		96E84B76197608B00079964C /* MyRichTextEditorCategoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E84B74197608B00079964C /* MyRichTextEditorCategoryViewController.m */; };
@@ -251,10 +252,11 @@
 		969E850B198323CD00A04C9C /* MyRichTextEditorParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorParser.h; sourceTree = "<group>"; };
 		969E850C198323CD00A04C9C /* MyRichTextEditorParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorParser.m; sourceTree = "<group>"; };
 		969E851219832EC700A04C9C /* text.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = text.json; sourceTree = "<group>"; };
+		96A07AE819844E2F0025561B /* menu~ipad.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "menu~ipad.json"; sourceTree = "<group>"; };
+		96A07AE919844E2F0025561B /* menu~iphone.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "menu~iphone.json"; sourceTree = "<group>"; };
 		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
 		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
 		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
-		96DCE82819774EB5001108B0 /* menu.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = menu.json; sourceTree = "<group>"; };
 		96DCE82A1977686A001108B0 /* MyRichTextEditorToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorToggleButton.h; sourceTree = "<group>"; };
 		96DCE82B1977686A001108B0 /* MyRichTextEditorToggleButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorToggleButton.m; sourceTree = "<group>"; };
 		96E84B71197608B00079964C /* MyRichTextEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditor.h; sourceTree = "<group>"; };
@@ -460,7 +462,8 @@
 				158389301735A5D7006DE713 /* ViewController.h */,
 				158389311735A5D7006DE713 /* ViewController.m */,
 				158389191735A5D7006DE713 /* Supporting Files */,
-				96DCE82819774EB5001108B0 /* menu.json */,
+				96A07AE819844E2F0025561B /* menu~ipad.json */,
+				96A07AE919844E2F0025561B /* menu~iphone.json */,
 				969E851219832EC700A04C9C /* text.json */,
 			);
 			path = RichTextEditor;
@@ -632,7 +635,7 @@
 				153F9590179F9953005B2487 /* popoverArrowLeft.png in Resources */,
 				153F9598179F9953005B2487 /* popoverArrowUpSimple.png in Resources */,
 				153F959B179F9953005B2487 /* popoverBgSimple.png in Resources */,
-				96DCE82919774EB5001108B0 /* menu.json in Resources */,
+				96A07AEA19844E2F0025561B /* menu~ipad.json in Resources */,
 				153F9595179F9953005B2487 /* popoverArrowRightSimple.png in Resources */,
 				1583892F1735A5D7006DE713 /* MainStoryboard_iPad.storyboard in Resources */,
 				15C4131317A4444B0073D047 /* backcolor.png in Resources */,
@@ -677,6 +680,7 @@
 				969E851319832EC700A04C9C /* text.json in Resources */,
 				1AFAED7B17C8022000E450B0 /* justifyfull@2x.png in Resources */,
 				1AFAED7C17C8022000E450B0 /* justifyright@2x.png in Resources */,
+				96A07AEB19844E2F0025561B /* menu~iphone.json in Resources */,
 				1AFAED7D17C8022000E450B0 /* justifycenter@2x.png in Resources */,
 				1AFAED8017C802B200E450B0 /* indent@2x.png in Resources */,
 				1AFAED8117C802B200E450B0 /* outdent@2x.png in Resources */,
