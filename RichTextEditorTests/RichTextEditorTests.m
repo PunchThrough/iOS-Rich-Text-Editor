@@ -9,13 +9,18 @@
 #import "RichTextEditorTests.h"
 #import "MyRichTextEditorHelper.h"
 
+@interface RichTextEditorTests()
+@property (nonatomic, strong) NSString *myText;
+@end
+
 @implementation RichTextEditorTests
 
 - (void)setUp
 {
     [super setUp];
     
-    // Set-up code here.
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
+    self.myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
 }
 
 - (void)tearDown
@@ -25,29 +30,72 @@
     [super tearDown];
 }
 
-- (void)testFunction1
+#define CURRENT_IMPL_FIRST 0
+
+#if CURRENT_IMPL_FIRST == 1
+- (void)testFunctionCurrentImpl1
 {
     MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
-    UITextView *textView = [[UITextView alloc] init];
-    textView.text = @"void myFunction() {}";
-    NSRange range = NSMakeRange(textView.text.length-1, 0);
-    [helper textView:textView shouldChangeTextInRange:range replacementText:@"\n"];
-    NSString *result = @"void myFunction() {\n    \n}";
-    XCTAssertTrue([textView.text isEqualToString:result], @"");
-    XCTAssertEqual(textView.selectedRange.location, result.length-2, @"");
+    NSMutableDictionary *dic = [helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n"] text:self.myText];
+    
+    XCTAssertTrue([dic allKeys].count == 359, @"");
 }
 
-- (void)testFunction2
+- (void)testFunctionCurrentImpl2
 {
     MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
-    UITextView *textView = [[UITextView alloc] init];
-    textView.text = @"void myFunction()\n{}";
-    NSRange range = NSMakeRange(textView.text.length-1, 0);
-    [helper textView:textView shouldChangeTextInRange:range replacementText:@"\n"];
-    NSString *result = @"void myFunction()\n{\n    \n}";
-    XCTAssertTrue([textView.text isEqualToString:result], @"");
-    XCTAssertEqual(textView.selectedRange.location, result.length-2, @"");
+    NSMutableDictionary *dic = [helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n"] text:self.myText];
+    
+    XCTAssertTrue([dic allKeys].count == 359, @"");
 }
 
+#else
+
+- (void)testFunctionRegexImpl1
+{
+    NSMutableArray *arr = [@[] mutableCopy];
+    NSError *error = NULL;
+    // regex for // /* */ \n
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\/|\\/\\*|\\*\\/|\\\n)" options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options");
+    }
+    
+    NSArray *matches = [regex matchesInString:self.myText options:0 range:NSMakeRange(0, self.myText.length)];
+    
+    // 6: Iterate through the matches and highlight them
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSRange matchRange = match.range;
+        [arr addObject:[NSValue valueWithRange:matchRange]];
+    }
+    
+    XCTAssertTrue(arr.count == 359, @"");
+}
+
+- (void)testFunctionRegexImpl2
+{
+    // experimental impl
+    NSMutableArray *arr = [@[] mutableCopy];
+    NSError *error = NULL;
+    // regex for // /* */ \n
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\/|\\/\\*|\\*\\/|\\\n)" options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options");
+    }
+    
+    NSArray *matches = [regex matchesInString:self.myText options:0 range:NSMakeRange(0, self.myText.length)];
+    
+    // 6: Iterate through the matches and highlight them
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSRange matchRange = match.range;
+        [arr addObject:[NSValue valueWithRange:matchRange]];
+    }
+    
+    XCTAssertTrue(arr.count == 359, @"");
+}
+
+#endif
 
 @end

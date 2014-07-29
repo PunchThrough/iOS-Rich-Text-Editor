@@ -132,7 +132,7 @@ typedef enum {
                 }
             }
             // case where /* comment */ EOF
-            else {
+            else if (i>0) {
                 NSNumber *secondKey = sortedKeys[i];
                 NSDictionary *secondToken = tokens[secondKey];
                 NSNumber *firstKey = sortedKeys[i-1];
