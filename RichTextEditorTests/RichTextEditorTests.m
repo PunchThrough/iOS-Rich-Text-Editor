@@ -30,7 +30,7 @@
     [super tearDown];
 }
 
-#define CURRENT_IMPL_FIRST 1
+#define CURRENT_IMPL_FIRST 0
 
 #if CURRENT_IMPL_FIRST == 1
 - (void)testFunctionCurrentImpl1
@@ -50,6 +50,17 @@
     
     XCTAssertTrue([dic allKeys].count == 359+4, @"");
 }
+
+- (void)testFunctionCurrentImpl3
+{
+    self.myText = [NSString stringWithFormat:@"%@//", self.myText];
+    
+    MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
+    NSMutableDictionary *dic = [helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n"] text:self.myText];
+    
+    XCTAssertTrue([dic allKeys].count == 359+1, @"");
+}
+
 
 #else
 
@@ -99,6 +110,32 @@
     
     XCTAssertTrue(arr.count == 359+4, @"");
 }
+
+- (void)testFunctionRegexImpl3
+{
+    self.myText = [NSString stringWithFormat:@"%@//", self.myText];
+    
+    // experimental impl
+    NSMutableArray *arr = [@[] mutableCopy];
+    NSError *error = NULL;
+    // regex for // /* */ \n
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\/|\\/\\*|\\*\\/|\\\n)" options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options");
+    }
+    
+    NSArray *matches = [regex matchesInString:self.myText options:0 range:NSMakeRange(0, self.myText.length)];
+    
+    // 6: Iterate through the matches and highlight them
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSRange matchRange = match.range;
+        [arr addObject:[NSValue valueWithRange:matchRange]];
+    }
+    
+    XCTAssertTrue(arr.count == 359+1, @"");
+}
+
 
 #endif
 
