@@ -30,7 +30,7 @@
     [super tearDown];
 }
 
-#define CURRENT_IMPL_FIRST 0
+#define CURRENT_IMPL_FIRST 1
 
 #if CURRENT_IMPL_FIRST == 1
 - (void)testFunctionCurrentImpl1
@@ -43,10 +43,12 @@
 
 - (void)testFunctionCurrentImpl2
 {
+    self.myText = [NSString stringWithFormat:@"%@\n\n/* added comment */", self.myText];
+
     MyRichTextEditorHelper *helper = [[MyRichTextEditorHelper alloc] init];
     NSMutableDictionary *dic = [helper occurancesOfString:@[@"//",@"/*",@"*/",@"\n"] text:self.myText];
     
-    XCTAssertTrue([dic allKeys].count == 359, @"");
+    XCTAssertTrue([dic allKeys].count == 359+4, @"");
 }
 
 #else
@@ -75,6 +77,8 @@
 
 - (void)testFunctionRegexImpl2
 {
+    self.myText = [NSString stringWithFormat:@"%@\n\n/* added comment */", self.myText];
+    
     // experimental impl
     NSMutableArray *arr = [@[] mutableCopy];
     NSError *error = NULL;
@@ -93,7 +97,7 @@
         [arr addObject:[NSValue valueWithRange:matchRange]];
     }
     
-    XCTAssertTrue(arr.count == 359, @"");
+    XCTAssertTrue(arr.count == 359+4, @"");
 }
 
 #endif
