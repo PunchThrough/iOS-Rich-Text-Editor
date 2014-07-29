@@ -129,7 +129,14 @@
         }
         
         // retokenize and get new range
+        
+        NSDate *date = [NSDate date];
+        
         [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+        
+        NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
+        NSLog(@"XXX %f",t);
+        
         NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.tokens];
         NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
         

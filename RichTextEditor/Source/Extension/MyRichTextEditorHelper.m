@@ -77,6 +77,27 @@
 // TODO : experiment with http://stackoverflow.com/questions/7489130/nsstring-find-parts-of-string-in-another-string
 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text {
+#define REGEX 0
+    
+#if REGEX == 1
+    NSError *error=NULL;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\/|\\/\\*|\\*\\/|\\\n)" options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options");
+    }
+    
+    NSArray *matches = [regex matchesInString:text options:0 range:NSMakeRange(0, text.length)];
+    
+    NSMutableDictionary *retDic = [@{} mutableCopy];
+    
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSRange matchRange = match.range;
+        retDic[@(matchRange.location)] = [text substringWithRange:matchRange];
+    }
+    
+    return retDic;
+#else
     NSMutableDictionary *retDic = [@{} mutableCopy];
     NSUInteger length = [text length];
     for (NSString *str in strArray) {
@@ -93,6 +114,7 @@
         }
     }
     return retDic;
+#endif
 }
 
 @end
