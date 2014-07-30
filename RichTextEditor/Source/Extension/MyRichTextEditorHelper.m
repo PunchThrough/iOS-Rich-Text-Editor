@@ -83,15 +83,13 @@
     NSError *error=NULL;
     NSMutableArray *temp = [@[] mutableCopy];
     for (NSString *str in strArray) {
-        NSString *s = [str stringByReplacingOccurrencesOfString:@"/" withString:@"\\/"];
-        s = [s stringByReplacingOccurrencesOfString:@"*" withString:@"\\*"];
-        [temp addObject:s];
+        [temp addObject:str];
     }
 
     NSString *pattern = [NSString stringWithFormat:@"(%@)", [temp componentsJoinedByString:@"|"]];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:nil error:&error];
     if (error) {
-        NSLog(@"Couldn't create regex with given string and options");
+        NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
     }
     
     NSArray *matches = [regex matchesInString:text options:0 range:NSMakeRange(0, text.length)];

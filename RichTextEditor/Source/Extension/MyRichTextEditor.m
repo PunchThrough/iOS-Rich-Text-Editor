@@ -35,13 +35,12 @@
     self.spellCheckingType = UITextSpellCheckingTypeNo;
     
     self.commentColor = [UIColor redColor];
-    self.stringColor = [UIColor darkGrayColor];
+    self.stringColor = [UIColor blueColor];
     self.helper = [[MyRichTextEditorHelper alloc] init];
     self.parser = [[MyRichTextEditorParser alloc] init];
     self.delegate = self;
 
     self.indentation = @"    ";
-    self.commentColor = [UIColor redColor];
     
     self.tokens = [@{} mutableCopy];
     self.tokenKeys = [@[] mutableCopy];
@@ -75,8 +74,8 @@
     
     if ([text isEqualToString:@"\n"]) {
         NSString *beginningText = [textView.text substringToIndex:range.location];
-        NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"{"] text:beginningText].count;
-        NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"}"] text:beginningText].count;
+        NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText].count;
+        NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText].count;
         NSInteger indentationCt = leftBrackers - rightBrackers;
         if (indentationCt<0) {
             indentationCt = 0;
