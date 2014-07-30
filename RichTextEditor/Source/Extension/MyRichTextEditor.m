@@ -35,6 +35,7 @@
     self.spellCheckingType = UITextSpellCheckingTypeNo;
     
     self.commentColor = [UIColor redColor];
+    self.stringColor = [UIColor darkGrayColor];
     self.helper = [[MyRichTextEditorHelper alloc] init];
     self.parser = [[MyRichTextEditorParser alloc] init];
     self.delegate = self;
@@ -175,8 +176,13 @@
         if ([token[@"type"] isEqualToString:@"comment"]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
-        else {
+        else if ([token[@"type"] isEqualToString:@"code"]) {
            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
+            NSArray *strArr = token[@"strings"];
+            for (NSDictionary *strToken in strArr) {
+                NSRange r = NSMakeRange([strToken[@"location"] integerValue]+range.location, [strToken[@"length"] integerValue]);
+                [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:r];
+            }
         }
         self.scrollEnabled = YES;
     }
