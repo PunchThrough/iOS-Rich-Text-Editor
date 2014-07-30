@@ -10,8 +10,7 @@
 #import "MyRichTextEditorHelper.h"
 
 typedef enum {
-	CommentStateUnknown = 1,
-	CommentStateSlashSlash,
+	CommentStateSlashSlash = 1,
     CommentStateSlashStar,
     CommentStateStarSlash,
     CommentStateReturn,
@@ -19,8 +18,7 @@ typedef enum {
 } CommentState;
 
 typedef enum {
-	StringStateUnknown = 1,
-	StringStateTick,
+	StringStateTick = 1,
     StringStateQuote,
     StringStateNone
 } StringState;
@@ -56,16 +54,27 @@ typedef enum {
 }
 
 - (void)parseCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
-    NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n"] text:text];
-    NSArray *commentKeys = [[commentsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
-    CommentState commentState = CommentStateUnknown;
+    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n", @"^\"",@"[^\\\\]\"",@"[^\\\\]'"] text:text];
+    
+    for (NSNumber *num in [symbolsDic copy]) {
+        NSString *val = symbolsDic[num];
+        if (val.length==2 && ([val hasSuffix:@"\'"] || [val hasSuffix:@"\""])) {
+            [symbolsDic removeObjectForKey:num];
+            symbolsDic[@([num intValue]+1)] = [val substringFromIndex:1];
+        }
+    }
+    
+    NSArray *symbolKeys = [[symbolsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    CommentState commentState = CommentStateSlashNone;
+    StringState stringState = StringStateNone;
     NSNumber *prevKey;
     NSNumber *key;
+    NSNumber *prevNewline = @(0);
     
     // comment ruleset
-    for (int j=0; j<commentKeys.count; j++) {
-        key = commentKeys[j];
-        NSString *symbol = commentsDic[key];
+    for (int j=0; j<symbolKeys.count; j++) {
+        key = symbolKeys[j];
+        NSString *symbol = symbolsDic[key];
         if ([symbol isEqualToString:@"/*"]) {
             if (commentState != CommentStateSlashSlash && commentState != CommentStateSlashStar) {
                 commentState = CommentStateSlashStar;
@@ -76,6 +85,7 @@ typedef enum {
             if (commentState == CommentStateSlashStar) {
                 // found /* */
                 segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"*/".length)};
+                prevNewline = key;
                 commentState = CommentStateSlashNone;
             }
         }
@@ -85,11 +95,46 @@ typedef enum {
                 prevKey = key;
             }
         }
+        else if ([symbol isEqualToString:@"'"]) {
+            if (stringState == StringStateQuote) {
+                continue;
+            }
+            else if (stringState == StringStateTick) {
+                segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\'".length)};
+                stringState = StringStateNone;
+            }
+            else {
+                stringState = StringStateTick;
+                prevKey = key;
+            }
+        }
+        else if ([symbol isEqualToString:@"\""]) {
+            if (stringState == StringStateTick) {
+                continue;
+            }
+            else if (stringState == StringStateQuote) {
+                // quote found
+                segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
+                stringState = StringStateNone;
+            }
+            else {
+                stringState = StringStateQuote;
+                prevKey = key;
+            }
+        }
         else if ([symbol isEqualToString:@"\n"]) {
             if (commentState == CommentStateSlashSlash) {
                 segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
                 commentState = CommentStateSlashNone;
             }
+            else if (commentState == CommentStateSlashNone) {
+                segments[prevKey] = @{@"type":@"code-line", @"location":prevNewline, @"length":@([key integerValue]-[prevNewline integerValue]+@"\n".length)};
+            }
+            else if (stringState == StringStateQuote || stringState == StringStateTick) {
+                segments[prevKey] = @{@"type":@"invalid-string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
+                stringState = StringStateNone;
+            }
+            prevNewline = key;
         }
     }
     
