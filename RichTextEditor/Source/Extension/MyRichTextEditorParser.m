@@ -184,7 +184,7 @@ typedef enum {
         NSDictionary *nonCommentSegment = nonCommentTokens[segmentKey];
 
         NSString *nonComment = [text substringWithRange:NSMakeRange([nonCommentSegment[@"location"] integerValue], [nonCommentSegment[@"length"] integerValue])];
-        NSDictionary *incorrectNonCommentDic = [self.helper occurancesOfString:@[@"^\"",@"[^\\\\]\"",@"[^\\\\]'"] text:nonComment];
+        NSDictionary *incorrectNonCommentDic = [self.helper occurancesOfString:@[@"^\"",@"[^\\\\]\"",@"[^\\\\]'", @"\n"] text:nonComment];
         NSMutableDictionary *nonCommentDic = [@{} mutableCopy];
         for (NSNumber *num in incorrectNonCommentDic) {
             NSString *val = incorrectNonCommentDic[num];
@@ -239,6 +239,17 @@ typedef enum {
                 else {
                     stringState = StringStateQuote;
                     prevKey = key;
+                }
+            }
+            else if ([symbol isEqualToString:@"\n"]) {
+                if (stringState == StringStateQuote || stringState == StringStateTick) {
+                    // quote found
+                    if (!strArr) {
+                        strArr = [@[] mutableCopy];
+                    }
+                    NSDictionary *str = @{@"type":@"invalid-string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
+                    [strArr addObject:str];
+                    stringState = StringStateNone;
                 }
             }
         }

@@ -13,5 +13,6 @@
 - (void)loadWithText:(NSString *)text;
 @property (nonatomic, strong) UIColor *commentColor;
 @property (nonatomic, strong) UIColor *stringColor;
+@property (nonatomic, strong) UIColor *invalidStringColor;
 @property (nonatomic, strong) NSString *indentation;
 @end
