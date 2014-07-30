@@ -132,7 +132,7 @@
         }
         
         NSDate *date = [NSDate date];
-        [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+        [self.parser parseText:self.text segment:self.tokens segmentKeys:self.tokenKeys];
         NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
         NSLog(@"XXX %f",t);
         
@@ -235,7 +235,7 @@
 - (void)loadWithText:(NSString *)text
 {
     self.text = text;
-    [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+    [self.parser parseText:self.text segment:self.tokens segmentKeys:self.tokenKeys];
     [self removeAttributeForKey:NSForegroundColorAttributeName atRange:NSMakeRange(0, self.text.length)];
     for (NSNumber *tokenKey in self.tokens) {
         NSDictionary *newToken = self.tokens[tokenKey];

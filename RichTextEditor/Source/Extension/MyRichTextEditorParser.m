@@ -40,23 +40,22 @@ typedef enum {
     return self;
 }
 
-// parses the text into tokens based on comment symbols
+// parses the text into segments based on comment symbols
 
-- (void)parseText:(NSString*)text tokens:(NSMutableDictionary*)tokens tokenKeys:(NSMutableArray*)tokenKeys  {
-    [tokens removeAllObjects];
-    [tokenKeys removeAllObjects];
+- (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys  {
+    [segments removeAllObjects];
+    [segmentKeys removeAllObjects];
     
-    [self parseCommentsText:text tokens:tokens];
-    NSMutableDictionary *nonCommentTokens = [self parseNonCommentsText:text tokens:tokens];
-    [self parseStringText:text nonCommentTokens:nonCommentTokens];
+    [self parseCommentsText:text segments:segments];
+    NSMutableDictionary *nonCommentTokens = [self parseNonCommentsText:text segments:segments];
+    [self parseStringText:text nonCommentSegments:nonCommentTokens];
     
-    [tokens addEntriesFromDictionary:nonCommentTokens];
-    NSArray *sortedKeys = [[[tokens allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
-    [tokenKeys addObjectsFromArray:sortedKeys];
-
+    [segments addEntriesFromDictionary:nonCommentTokens];
+    NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
+    [segmentKeys addObjectsFromArray:sortedKeys];
 }
 
-- (void)parseCommentsText:(NSString*)text tokens:(NSMutableDictionary*)tokens {
+- (void)parseCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
     NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n"] text:text];
     NSArray *commentKeys = [[commentsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
     CommentState commentState = CommentStateUnknown;
@@ -76,7 +75,7 @@ typedef enum {
         else if ([symbol isEqualToString:@"*/"]) {
             if (commentState == CommentStateSlashStar) {
                 // found /* */
-                tokens[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"*/".length)};
+                segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"*/".length)};
                 commentState = CommentStateStarSlash;
             }
         }
@@ -89,33 +88,33 @@ typedef enum {
         else if ([symbol isEqualToString:@"\n"]) {
             if (commentState == CommentStateSlashSlash) {
                 commentState = CommentStateReturn;
-                tokens[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
+                segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
             }
         }
     }
     
     if (commentState == CommentStateSlashStar) {
         key = @(text.length);
-        tokens[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
+        segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
     }
     else if (commentState == CommentStateSlashSlash) {
         key = @(text.length);
-        tokens[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
+        segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
     }
 }
 
-- (NSMutableDictionary*)parseNonCommentsText:(NSString*)text tokens:(NSMutableDictionary*)tokens {
-    NSMutableDictionary *nonCommentTokens = [@{} mutableCopy];
-    NSArray *sortedKeys = [[tokens allKeys] sortedArrayUsingSelector: @selector(compare:)];
+- (NSMutableDictionary*)parseNonCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
+    NSMutableDictionary *nonCommentSegments = [@{} mutableCopy];
+    NSArray *sortedKeys = [[segments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int i=0;i<sortedKeys.count;i++) {
         // case where BOF code /* comment
         if (i == 0) {
             NSNumber *key = sortedKeys[i];
-            NSDictionary *token = tokens[key];
-            if ([token[@"location"] integerValue] > 0) {
-                int length = [token[@"location"] intValue];
+            NSDictionary *segment = segments[key];
+            if ([segment[@"location"] integerValue] > 0) {
+                int length = [segment[@"location"] intValue];
                 if (length>0) {
-                    nonCommentTokens[@0] = @{@"type":@"code", @"location":@(0), @"length":@(length)};
+                    nonCommentSegments[@0] = @{@"type":@"code", @"location":@(0), @"length":@(length)};
                 }
                 else {
                     continue;
@@ -124,31 +123,31 @@ typedef enum {
         }
         if (i == sortedKeys.count-1) {
             NSNumber *key = sortedKeys[i];
-            NSDictionary *token = tokens[key];
+            NSDictionary *segment = segments[key];
             // case where /* comment */ code EOF
-            if ([token[@"location"] integerValue]+[token[@"length"] integerValue] < (text.length-1)) {
-                NSUInteger location = [token[@"location"] integerValue] + [token[@"length"] integerValue];
+            if ([segment[@"location"] integerValue]+[segment[@"length"] integerValue] < (text.length-1)) {
+                NSUInteger location = [segment[@"location"] integerValue] + [segment[@"length"] integerValue];
                 NSUInteger length = (text.length)-location;
                 if (length==0) {
                     continue;
                 }
                 else {
-                    nonCommentTokens[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                    nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
                 }
             }
             // case where /* comment */ EOF
             else if (i>0) {
                 NSNumber *secondKey = sortedKeys[i];
-                NSDictionary *secondToken = tokens[secondKey];
+                NSDictionary *secondSegment = segments[secondKey];
                 NSNumber *firstKey = sortedKeys[i-1];
-                NSDictionary *firstToken = tokens[firstKey];
-                NSUInteger location = [firstToken[@"location"] integerValue] + [firstToken[@"length"] integerValue];
-                NSUInteger length = [secondToken[@"location"] integerValue] - location;
+                NSDictionary *firstSegment = segments[firstKey];
+                NSUInteger location = [firstSegment[@"location"] integerValue] + [firstSegment[@"length"] integerValue];
+                NSUInteger length = [secondSegment[@"location"] integerValue] - location;
                 if (length==0) {
                     continue;
                 }
                 else {
-                    nonCommentTokens[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                    nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
                 }
             }
         }
@@ -156,32 +155,32 @@ typedef enum {
         // case where BOF /* first comment */ code and comments /* last comment */ EOF
         if (i > 0 && i < sortedKeys.count-1) {
             NSNumber *secondKey = sortedKeys[i];
-            NSDictionary *secondToken = tokens[secondKey];
+            NSDictionary *secondSegment = segments[secondKey];
             NSNumber *firstKey = sortedKeys[i-1];
-            NSDictionary *firstToken = tokens[firstKey];
-            NSUInteger location = [firstToken[@"location"] integerValue] + [firstToken[@"length"] integerValue];
-            NSUInteger length = [secondToken[@"location"] integerValue] - location;
+            NSDictionary *firstSegment = segments[firstKey];
+            NSUInteger location = [firstSegment[@"location"] integerValue] + [firstSegment[@"length"] integerValue];
+            NSUInteger length = [secondSegment[@"location"] integerValue] - location;
             if (length==0) {
                 continue;
             }
             else {
-                nonCommentTokens[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
             }
         }
     }
     
     if (sortedKeys.count == 0) {
-        nonCommentTokens[@(0)] = @{@"type":@"code", @"location":@(0), @"length":@(text.length)};
+        nonCommentSegments[@(0)] = @{@"type":@"code", @"location":@(0), @"length":@(text.length)};
     }
     
-    return nonCommentTokens;
+    return nonCommentSegments;
 }
 
-- (void)parseStringText:(NSString*)text nonCommentTokens:(NSMutableDictionary*)nonCommentTokens {
-    NSArray *sortedKeys = [[nonCommentTokens allKeys] sortedArrayUsingSelector: @selector(compare:)];
+- (void)parseStringText:(NSString*)text nonCommentSegments:(NSMutableDictionary*)nonCommentSegments {
+    NSArray *sortedKeys = [[nonCommentSegments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int j=0;j<sortedKeys.count;j++) {
         NSString *segmentKey = sortedKeys[j];
-        NSDictionary *nonCommentSegment = nonCommentTokens[segmentKey];
+        NSDictionary *nonCommentSegment = nonCommentSegments[segmentKey];
 
         NSString *nonComment = [text substringWithRange:NSMakeRange([nonCommentSegment[@"location"] integerValue], [nonCommentSegment[@"length"] integerValue])];
         NSDictionary *incorrectNonCommentDic = [self.helper occurancesOfString:@[@"^\"",@"[^\\\\]\"",@"[^\\\\]'", @"\n"] text:nonComment];
@@ -274,7 +273,7 @@ typedef enum {
         NSMutableDictionary *temp = [nonCommentSegment mutableCopy];
         if (strArr) {
             temp[@"strings"] = strArr;
-            nonCommentTokens[segmentKey] = temp;
+            nonCommentSegments[segmentKey] = temp;
         }
     }
 }
