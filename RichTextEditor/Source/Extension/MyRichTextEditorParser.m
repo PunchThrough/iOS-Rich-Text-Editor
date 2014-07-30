@@ -76,7 +76,7 @@ typedef enum {
             if (commentState == CommentStateSlashStar) {
                 // found /* */
                 segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"*/".length)};
-                commentState = CommentStateStarSlash;
+                commentState = CommentStateSlashNone;
             }
         }
         else if ([symbol isEqualToString:@"//"]) {
@@ -87,8 +87,8 @@ typedef enum {
         }
         else if ([symbol isEqualToString:@"\n"]) {
             if (commentState == CommentStateSlashSlash) {
-                commentState = CommentStateReturn;
                 segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
+                commentState = CommentStateSlashNone;
             }
         }
     }
