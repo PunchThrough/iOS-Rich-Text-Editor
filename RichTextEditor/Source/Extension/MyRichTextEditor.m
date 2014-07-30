@@ -140,7 +140,19 @@
         NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
         
         // apply all tokens
-        NSRange bothRanges = NSUnionRange(oldRange, newRange);
+        NSRange bothRanges;
+        if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
+            bothRanges = NSUnionRange(oldRange, newRange);
+        }
+        else if (newRange.length>0 || newRange.location>0) {
+            bothRanges = newRange;
+        }
+        else if (oldRange.length>0 || oldRange.location>0) {
+            bothRanges = oldRange;
+        }
+        else {
+            // should never get here
+        }
         NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.tokens tokenKeys:self.tokenKeys];
         for (NSDictionary *token in tokens) {
             [self applyToken:token];
@@ -173,18 +185,14 @@
         if ([token[@"type"] isEqualToString:@"comment"]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
+        else if ([token[@"type"] isEqualToString:@"string"]) {
+            [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:range];
+        }
+        else if ([token[@"type"] isEqualToString:@"invalid-string"]) {
+            [self applyAttributes:self.invalidStringColor forKey:NSForegroundColorAttributeName atRange:range];
+        }
         else if ([token[@"type"] isEqualToString:@"code"]) {
            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
-            NSArray *strArr = token[@"strings"];
-            for (NSDictionary *strToken in strArr) {
-                NSRange r = NSMakeRange([strToken[@"location"] integerValue]+range.location, [strToken[@"length"] integerValue]);
-                if ([strToken[@"type"] isEqualToString:@"string"]) {
-                    [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:r];
-                }
-                else if ([strToken[@"type"] isEqualToString:@"invalid-string"]) {
-                    [self applyAttributes:self.invalidStringColor forKey:NSForegroundColorAttributeName atRange:r];
-                }
-            }
         }
         self.scrollEnabled = YES;
     }
