@@ -17,7 +17,7 @@
     NSUInteger min = NSUIntegerMax;
     NSNumber *keyToken;
     for (NSNumber *key in tokens) {
-        int diff = abs([key integerValue] - range.location);
+        int diff = abs((int)[key unsignedIntegerValue] - (int)range.location);
         if (([key integerValue] <= range.location) && (diff <= min)) {
             min = diff;
             keyToken = key;
@@ -77,6 +77,33 @@
 // TODO : experiment with http://stackoverflow.com/questions/7489130/nsstring-find-parts-of-string-in-another-string
 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text {
+#define REGEX 1
+    
+#if REGEX == 1
+    NSError *error=NULL;
+    NSMutableArray *temp = [@[] mutableCopy];
+    for (NSString *str in strArray) {
+        [temp addObject:str];
+    }
+
+    NSString *pattern = [NSString stringWithFormat:@"(%@)", [temp componentsJoinedByString:@"|"]];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+    }
+    
+    NSArray *matches = [regex matchesInString:text options:0 range:NSMakeRange(0, text.length)];
+    
+    NSMutableDictionary *retDic = [@{} mutableCopy];
+    
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSRange matchRange = match.range;
+        retDic[@(matchRange.location)] = [text substringWithRange:matchRange];
+    }
+    
+    return retDic;
+#else
     NSMutableDictionary *retDic = [@{} mutableCopy];
     NSUInteger length = [text length];
     for (NSString *str in strArray) {
@@ -93,6 +120,7 @@
         }
     }
     return retDic;
+#endif
 }
 
 @end

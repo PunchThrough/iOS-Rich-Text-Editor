@@ -35,12 +35,13 @@
     self.spellCheckingType = UITextSpellCheckingTypeNo;
     
     self.commentColor = [UIColor redColor];
+    self.stringColor = [UIColor blueColor];
+    self.invalidStringColor = [UIColor orangeColor];
     self.helper = [[MyRichTextEditorHelper alloc] init];
     self.parser = [[MyRichTextEditorParser alloc] init];
     self.delegate = self;
 
     self.indentation = @"    ";
-    self.commentColor = [UIColor redColor];
     
     self.tokens = [@{} mutableCopy];
     self.tokenKeys = [@[] mutableCopy];
@@ -72,37 +73,8 @@
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
-    if ([text isEqualToString:@"\n"]) {
-        NSString *beginningText = [textView.text substringToIndex:range.location];
-        NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"{"] text:beginningText].count;
-        NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"}"] text:beginningText].count;
-        NSInteger indentationCt = leftBrackers - rightBrackers;
-        if (indentationCt<0) {
-            indentationCt = 0;
-        }
-        BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
-        textView.selectedRange = range;
-        
-        [textView insertText:@"\n"];
-        
-        for (int i=0; i<indentationCt; i++) {
-            [textView insertText:self.indentation];
-        }
-        
-        if (inBrackets) {
-            [textView insertText:@"\n"];
-            for (int i=0; i<indentationCt-1; i++) {
-                [textView insertText:self.indentation];
-            }
-            NSRange range = textView.selectedRange;
-            range.location -= (1 + self.indentation.length*(indentationCt-1));
-            textView.selectedRange = range;
-        }
-        
-        return NO;
-    }
-    else {
         NSRange selectedRange = textView.selectedRange;
+
         // old range used to calculate how much text we need to process
         NSDictionary *oldToken = [self.helper tokenForRange:range fromTokens:self.tokens];
         NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
@@ -111,7 +83,38 @@
         if ([text isEqualToString:@""]) {
             [textView deleteBackward];
         }
-        // character pressed
+        // newline entered
+        else if ([text isEqualToString:@"\n"]) {
+            NSString *beginningText = [textView.text substringToIndex:range.location];
+            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText].count;
+            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText].count;
+            NSInteger indentationCt = leftBrackers - rightBrackers;
+            if (indentationCt<0) {
+                indentationCt = 0;
+            }
+            BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
+            textView.selectedRange = range;
+            
+            [textView insertText:@"\n"];
+            
+            for (int i=0; i<indentationCt; i++) {
+                [textView insertText:self.indentation];
+            }
+            
+            if (inBrackets) {
+                [textView insertText:@"\n"];
+                for (int i=0; i<indentationCt-1; i++) {
+                    [textView insertText:self.indentation];
+                }
+                NSRange range = textView.selectedRange;
+                range.location -= (1 + self.indentation.length*(indentationCt-1));
+                selectedRange = range;
+            }
+            else {
+                selectedRange = textView.selectedRange;
+            }
+        }
+        // anything else entered
         else {
             // when single char typed, check for replace { for {} , ...
             if (text.length == 1) {
@@ -128,8 +131,11 @@
             }
         }
         
-        // retokenize and get new range
+        NSDate *date = [NSDate date];
         [self.parser parseText:self.text tokens:self.tokens tokenKeys:self.tokenKeys];
+        NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
+        NSLog(@"XXX %f",t);
+        
         NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.tokens];
         NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
         
@@ -149,15 +155,14 @@
                 textView.selectedRange = NSMakeRange(selectedRange.location-1, 0);
             }
         }
-        // character pressed
+        else if ([text isEqualToString:@"\n"]) {
+            textView.selectedRange = selectedRange;
+        }
         else {
             textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
         }
         
         return NO;
-    }
-    
-    return YES;
 }
 
 - (void)applyToken:(NSDictionary*)token {
@@ -168,8 +173,18 @@
         if ([token[@"type"] isEqualToString:@"comment"]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
-        else {
+        else if ([token[@"type"] isEqualToString:@"code"]) {
            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
+            NSArray *strArr = token[@"strings"];
+            for (NSDictionary *strToken in strArr) {
+                NSRange r = NSMakeRange([strToken[@"location"] integerValue]+range.location, [strToken[@"length"] integerValue]);
+                if ([strToken[@"type"] isEqualToString:@"string"]) {
+                    [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:r];
+                }
+                else if ([strToken[@"type"] isEqualToString:@"invalid-string"]) {
+                    [self applyAttributes:self.invalidStringColor forKey:NSForegroundColorAttributeName atRange:r];
+                }
+            }
         }
         self.scrollEnabled = YES;
     }
