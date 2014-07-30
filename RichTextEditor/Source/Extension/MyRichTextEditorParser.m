@@ -10,8 +10,7 @@
 #import "MyRichTextEditorHelper.h"
 
 typedef enum {
-	CommentStateUnknown = 1,
-	CommentStateSlashSlash,
+	CommentStateSlashSlash = 1,
     CommentStateSlashStar,
     CommentStateStarSlash,
     CommentStateReturn,
@@ -19,8 +18,7 @@ typedef enum {
 } CommentState;
 
 typedef enum {
-	StringStateUnknown = 1,
-	StringStateTick,
+	StringStateTick = 1,
     StringStateQuote,
     StringStateNone
 } StringState;
@@ -46,28 +44,39 @@ typedef enum {
     [segments removeAllObjects];
     [segmentKeys removeAllObjects];
     
-    [self parseCommentsText:text segments:segments];
-    NSMutableDictionary *nonCommentTokens = [self parseNonCommentsText:text segments:segments];
-    [self parseStringText:text nonCommentSegments:nonCommentTokens];
-    
-    [segments addEntriesFromDictionary:nonCommentTokens];
+    [self parseStringCommentsText:text segments:segments];
+    NSMutableDictionary *otherSegments = [self parseOtherText:text segments:segments];
+    [segments addEntriesFromDictionary:otherSegments];
     NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
     [segmentKeys addObjectsFromArray:sortedKeys];
 }
 
-- (void)parseCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
-    NSDictionary *commentsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n"] text:text];
-    NSArray *commentKeys = [[commentsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
-    CommentState commentState = CommentStateUnknown;
+- (void)parseStringCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
+    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text];
+    
+    for (NSNumber *num in [symbolsDic copy]) {
+        NSString *val = symbolsDic[num];
+        if (val.length==2 && ([val hasSuffix:@"\'"] || [val hasSuffix:@"\""])) {
+            [symbolsDic removeObjectForKey:num];
+            symbolsDic[@([num intValue]+1)] = [val substringFromIndex:1];
+        }
+    }
+    
+    NSArray *symbolKeys = [[symbolsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    CommentState commentState = CommentStateSlashNone;
+    StringState stringState = StringStateNone;
     NSNumber *prevKey;
     NSNumber *key;
     
     // comment ruleset
-    for (int j=0; j<commentKeys.count; j++) {
-        key = commentKeys[j];
-        NSString *symbol = commentsDic[key];
+    for (int j=0; j<symbolKeys.count; j++) {
+        key = symbolKeys[j];
+        NSString *symbol = symbolsDic[key];
         if ([symbol isEqualToString:@"/*"]) {
-            if (commentState != CommentStateSlashSlash && commentState != CommentStateSlashStar) {
+            if (stringState == StringStateTick || stringState == StringStateQuote) {
+                // do nothing
+            }
+            else if (commentState != CommentStateSlashSlash && commentState != CommentStateSlashStar) {
                 commentState = CommentStateSlashStar;
                 prevKey = key;
             }
@@ -80,8 +89,44 @@ typedef enum {
             }
         }
         else if ([symbol isEqualToString:@"//"]) {
-            if (commentState != CommentStateSlashStar) {
+            if (stringState == StringStateTick || stringState == StringStateQuote) {
+                // do nothing
+            }
+            else if (commentState != CommentStateSlashStar) {
                 commentState = CommentStateSlashSlash;
+                prevKey = key;
+            }
+        }
+        else if ([symbol isEqualToString:@"'"]) {
+            if (stringState == StringStateQuote) {
+                continue;
+            }
+            else if (stringState == StringStateTick) {
+                segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\'".length)};
+                stringState = StringStateNone;
+            }
+            else if (commentState == CommentStateSlashSlash || commentState == CommentStateSlashStar) {
+                // do nothing
+            }
+            else {
+                stringState = StringStateTick;
+                prevKey = key;
+            }
+        }
+        else if ([symbol isEqualToString:@"\""]) {
+            if (stringState == StringStateTick) {
+                continue;
+            }
+            else if (stringState == StringStateQuote) {
+                // quote found
+                segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
+                stringState = StringStateNone;
+            }
+            else if (commentState == CommentStateSlashSlash || commentState == CommentStateSlashStar) {
+                // do nothing
+            }
+            else {
+                stringState = StringStateQuote;
                 prevKey = key;
             }
         }
@@ -89,6 +134,10 @@ typedef enum {
             if (commentState == CommentStateSlashSlash) {
                 segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\n".length)};
                 commentState = CommentStateSlashNone;
+            }
+            else if (stringState == StringStateQuote || stringState == StringStateTick) {
+                segments[prevKey] = @{@"type":@"invalid-string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
+                stringState = StringStateNone;
             }
         }
     }
@@ -101,10 +150,18 @@ typedef enum {
         key = @(text.length);
         segments[prevKey] = @{@"type":@"comment", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
     }
+    if (stringState == StringStateTick) {
+        key = @(text.length);
+        segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
+    }
+    else if (stringState == StringStateQuote) {
+        key = @(text.length);
+        segments[prevKey] = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])};
+    }
 }
 
-- (NSMutableDictionary*)parseNonCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
-    NSMutableDictionary *nonCommentSegments = [@{} mutableCopy];
+- (NSMutableDictionary*)parseOtherText:(NSString*)text segments:(NSMutableDictionary*)segments {
+    NSMutableDictionary *otherSegments = [@{} mutableCopy];
     NSArray *sortedKeys = [[segments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int i=0;i<sortedKeys.count;i++) {
         // case where BOF code /* comment
@@ -114,7 +171,7 @@ typedef enum {
             if ([segment[@"location"] integerValue] > 0) {
                 int length = [segment[@"location"] intValue];
                 if (length>0) {
-                    nonCommentSegments[@0] = @{@"type":@"code", @"location":@(0), @"length":@(length)};
+                    otherSegments[@0] = @{@"type":@"code", @"location":@(0), @"length":@(length)};
                 }
                 else {
                     continue;
@@ -125,14 +182,14 @@ typedef enum {
             NSNumber *key = sortedKeys[i];
             NSDictionary *segment = segments[key];
             // case where /* comment */ code EOF
-            if ([segment[@"location"] integerValue]+[segment[@"length"] integerValue] < (text.length-1)) {
+            if ([segment[@"location"] integerValue]+[segment[@"length"] integerValue] < (text.length)) {
                 NSUInteger location = [segment[@"location"] integerValue] + [segment[@"length"] integerValue];
                 NSUInteger length = (text.length)-location;
                 if (length==0) {
                     continue;
                 }
                 else {
-                    nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                    otherSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
                 }
             }
             // case where /* comment */ EOF
@@ -147,7 +204,7 @@ typedef enum {
                     continue;
                 }
                 else {
-                    nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                    otherSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
                 }
             }
         }
@@ -164,16 +221,16 @@ typedef enum {
                 continue;
             }
             else {
-                nonCommentSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
+                otherSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
             }
         }
     }
     
     if (sortedKeys.count == 0) {
-        nonCommentSegments[@(0)] = @{@"type":@"code", @"location":@(0), @"length":@(text.length)};
+        otherSegments[@(0)] = @{@"type":@"code", @"location":@(0), @"length":@(text.length)};
     }
     
-    return nonCommentSegments;
+    return otherSegments;
 }
 
 - (void)parseStringText:(NSString*)text nonCommentSegments:(NSMutableDictionary*)nonCommentSegments {
