@@ -126,6 +126,7 @@
 
 
 // based on http://stackoverflow.com/questions/50467/how-do-i-size-a-uitextview-to-its-content
+// seen issue http://www.raywenderlich.com/forums/viewtopic.php?f=21&t=9101
 
 - (NSUInteger)viewHeightForText:(NSString*)text textView:(UITextView*)textView {
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
