@@ -45,7 +45,9 @@ typedef enum {
     [segmentKeys removeAllObjects];
     
     [self parseStringCommentsText:text segments:segments];
-    NSMutableDictionary *otherSegments = [self parseOtherText:text segments:segments];
+    NSMutableDictionary *otherSegments = [self otherSegmentsFromText:text segments:segments];
+    [self tokenizeFromText:text otherSegments:otherSegments];
+    
     [segments addEntriesFromDictionary:otherSegments];
     NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
     [segmentKeys addObjectsFromArray:sortedKeys];
@@ -58,7 +60,12 @@ typedef enum {
         NSString *val = symbolsDic[num];
         if (val.length==2 && ([val hasSuffix:@"\'"] || [val hasSuffix:@"\""])) {
             [symbolsDic removeObjectForKey:num];
-            symbolsDic[@([num intValue]+1)] = [val substringFromIndex:1];
+            if ([val isEqualToString:@"\\\""]) {
+                [symbolsDic removeObjectForKey:num];
+            }
+            else {
+                symbolsDic[@([num intValue]+1)] = [val substringFromIndex:1];
+            }
         }
     }
     
@@ -160,7 +167,7 @@ typedef enum {
     }
 }
 
-- (NSMutableDictionary*)parseOtherText:(NSString*)text segments:(NSMutableDictionary*)segments {
+- (NSMutableDictionary*)otherSegmentsFromText:(NSString*)text segments:(NSMutableDictionary*)segments {
     NSMutableDictionary *otherSegments = [@{} mutableCopy];
     NSArray *sortedKeys = [[segments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int i=0;i<sortedKeys.count;i++) {
@@ -233,105 +240,15 @@ typedef enum {
     return otherSegments;
 }
 
-- (void)parseStringText:(NSString*)text nonCommentSegments:(NSMutableDictionary*)nonCommentSegments {
-    NSArray *sortedKeys = [[nonCommentSegments allKeys] sortedArrayUsingSelector: @selector(compare:)];
+- (void)tokenizeFromText:(NSString*)text otherSegments:(NSMutableDictionary*)segments {
+    NSArray *sortedKeys = [[segments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int j=0;j<sortedKeys.count;j++) {
         NSString *segmentKey = sortedKeys[j];
-        NSDictionary *nonCommentSegment = nonCommentSegments[segmentKey];
-
-        NSString *nonComment = [text substringWithRange:NSMakeRange([nonCommentSegment[@"location"] integerValue], [nonCommentSegment[@"length"] integerValue])];
-        NSDictionary *incorrectNonCommentDic = [self.helper occurancesOfString:@[@"^\"",@"[^\\\\]\"",@"[^\\\\]'", @"\n"] text:nonComment];
-        NSMutableDictionary *nonCommentDic = [@{} mutableCopy];
-        for (NSNumber *num in incorrectNonCommentDic) {
-            NSString *val = incorrectNonCommentDic[num];
-            if (val.length>1) {
-                nonCommentDic[@([num intValue]+1)] = [val substringFromIndex:1];
-            }
-            else {
-                nonCommentDic[num] = val;
-            }
-        }
+        NSDictionary *segment = segments[segmentKey];
+        NSString *segmentText = [text substringWithRange:NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue])];
+        NSArray *arr = [segmentText componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \t\n.#<>"]];
         
-        NSArray *nonCommentKeys = [[nonCommentDic allKeys] sortedArrayUsingSelector: @selector(compare:)];
-        NSNumber *prevKey;
-        NSNumber *key;
-        StringState stringState = StringStateNone;
-        NSMutableArray *strArr = nil;
-        // ruleset,
-        for (int j=0; j<nonCommentKeys.count; j++) {
-            key = nonCommentKeys[j];
-            NSString *symbol = nonCommentDic[key];
-            if ([symbol isEqualToString:@"'"]) {
-                if (stringState == StringStateQuote) {
-                    continue;
-                }
-                else if (stringState == StringStateTick) {
-                    // quote found
-                    if (!strArr) {
-                        strArr = [@[] mutableCopy];
-                    }
-                    NSDictionary *str = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\'".length)};
-                    [strArr addObject:str];
-                    stringState = StringStateNone;
-                }
-                else {
-                    stringState = StringStateTick;
-                    prevKey = key;
-                }
-            }
-            else if ([symbol isEqualToString:@"\""]) {
-                if (stringState == StringStateTick) {
-                    continue;
-                }
-                else if (stringState == StringStateQuote) {
-                    // quote found
-                    if (!strArr) {
-                        strArr = [@[] mutableCopy];
-                    }
-                    NSDictionary *str = @{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
-                    [strArr addObject:str];
-                    stringState = StringStateNone;
-                }
-                else {
-                    stringState = StringStateQuote;
-                    prevKey = key;
-                }
-            }
-            else if ([symbol isEqualToString:@"\n"]) {
-                if (stringState == StringStateQuote || stringState == StringStateTick) {
-                    // quote found
-                    if (!strArr) {
-                        strArr = [@[] mutableCopy];
-                    }
-                    NSDictionary *str = @{@"type":@"invalid-string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue]+@"\"".length)};
-                    [strArr addObject:str];
-                    stringState = StringStateNone;
-                }
-            }
-        }
-        
-        if (stringState == StringStateTick) {
-            key = @(nonComment.length);
-            if (!strArr) {
-                strArr = [@[] mutableCopy];
-            }
-            [strArr addObject:@{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])}];
-            
-        }
-        else if (stringState == StringStateQuote) {
-            key = @(nonComment.length);
-            if (!strArr) {
-                strArr = [@[] mutableCopy];
-            }
-            [strArr addObject:@{@"type":@"string", @"location":prevKey, @"length":@([key integerValue]-[prevKey integerValue])}];
-        }
-
-        
-        NSMutableDictionary *temp = [nonCommentSegment mutableCopy];
-        if (strArr) {
-            temp[@"strings"] = strArr;
-            nonCommentSegments[segmentKey] = temp;
-        }
     }
 }
+
 @end

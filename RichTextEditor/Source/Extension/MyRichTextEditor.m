@@ -19,6 +19,8 @@
 @property (nonatomic, strong) NSMutableDictionary *tokens;
 @property (nonatomic, strong) NSMutableArray *tokenKeys;
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
+@property (nonatomic, strong) NSMutableDictionary *keywordsDic;
+@property (nonatomic, strong) NSMutableDictionary *keywordColorsDic;
 @end
 
 @implementation MyRichTextEditor
@@ -34,9 +36,6 @@
     self.autocapitalizationType = UITextAutocapitalizationTypeNone;
     self.spellCheckingType = UITextSpellCheckingTypeNo;
     
-    self.commentColor = [UIColor redColor];
-    self.stringColor = [UIColor blueColor];
-    self.invalidStringColor = [UIColor orangeColor];
     self.helper = [[MyRichTextEditorHelper alloc] init];
     self.parser = [[MyRichTextEditorParser alloc] init];
     self.delegate = self;
@@ -61,6 +60,71 @@
     self.textReplaceDic = [@{} mutableCopy];
     for (NSDictionary *dic  in textJson) {
         self.textReplaceDic[dic[@"text"]] = dic;
+    }
+    
+    filePath = [[NSBundle mainBundle] pathForResource:@"keywords" ofType:@"txt"];
+    if (filePath) {
+        NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
+        NSArray *arr = [myText componentsSeparatedByString:@"\n"];
+        self.keywordsDic = [@{} mutableCopy];
+        for (NSString *line in arr) {
+            if ([line hasPrefix:@"#"]) {
+                continue;
+            }
+            
+            NSArray *words = [line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if (words.count >= 2) {
+                if (((NSString*)words[1]).length == 0 && words.count>=3) {
+                    self.keywordsDic[words[0]] = words[2];
+                }
+                else {
+                    self.keywordsDic[words[0]] = words[1];
+                }
+            }
+        }
+    }
+
+    filePath = [[NSBundle mainBundle] pathForResource:@"textColors" ofType:@"json"];
+    if (filePath) {
+        NSData *data = [NSData dataWithContentsOfFile:filePath];
+        if (data) {
+            // do something useful
+        }
+        NSError *error;
+        NSDictionary *textColors = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+        if (error)
+            NSLog(@"JSONObjectWithData error: %@", error);
+        NSArray *temp = textColors[@"comments"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            self.commentColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"invalid-string"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            self.invalidStringColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"string"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            self.stringColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"keywords"];
+        if (temp) {
+            self.keywordColorsDic = [@{} mutableCopy];
+            for (NSDictionary *dic in temp) {
+                for (NSString *key in dic) {
+                    NSArray *val = dic[key];
+                    self.keywordColorsDic[key] = [UIColor colorWithRed:[val[0] floatValue] green:[val[1] floatValue] blue:[val[2] floatValue] alpha:1];
+                }
+            }
+        }
     }
 }
 
