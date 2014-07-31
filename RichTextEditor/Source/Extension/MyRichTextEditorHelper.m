@@ -76,7 +76,7 @@
 // returns a dic where the key is the index and value being the found string
 // TODO : experiment with http://stackoverflow.com/questions/7489130/nsstring-find-parts-of-string-in-another-string
 
-- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text {
+- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addParen:(BOOL)addParen {
 #define REGEX 1
     
 #if REGEX == 1
@@ -86,7 +86,14 @@
         [temp addObject:str];
     }
 
-    NSString *pattern = [NSString stringWithFormat:@"(%@)", [temp componentsJoinedByString:@"|"]];
+    NSString *pattern;;
+    if (addParen) {
+        pattern = [NSString stringWithFormat:@"(%@)", [temp componentsJoinedByString:@"|"]];
+    }
+    else {
+        pattern = [NSString stringWithFormat:@"%@", [temp componentsJoinedByString:@"|"]];
+    }
+    
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:nil error:&error];
     if (error) {
         NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);

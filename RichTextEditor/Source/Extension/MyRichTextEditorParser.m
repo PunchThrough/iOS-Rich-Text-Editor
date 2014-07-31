@@ -40,13 +40,13 @@ typedef enum {
 
 // parses the text into segments based on comment symbols
 
-- (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys  {
+- (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys keywords:(NSDictionary*)keywords {
     [segments removeAllObjects];
     [segmentKeys removeAllObjects];
     
     [self parseStringCommentsText:text segments:segments];
     NSMutableDictionary *otherSegments = [self otherSegmentsFromText:text segments:segments];
-    [self tokenizeFromText:text otherSegments:otherSegments];
+    [self tokenizeFromText:text otherSegments:otherSegments keywords:keywords];
     
     [segments addEntriesFromDictionary:otherSegments];
     NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
@@ -54,7 +54,7 @@ typedef enum {
 }
 
 - (void)parseStringCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
-    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text];
+    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text addParen:YES];
     
     for (NSNumber *num in [symbolsDic copy]) {
         NSString *val = symbolsDic[num];
@@ -240,14 +240,25 @@ typedef enum {
     return otherSegments;
 }
 
-- (void)tokenizeFromText:(NSString*)text otherSegments:(NSMutableDictionary*)segments {
+- (void)tokenizeFromText:(NSString*)text otherSegments:(NSMutableDictionary*)segments keywords:(NSDictionary*)keywords {
     NSArray *sortedKeys = [[segments allKeys] sortedArrayUsingSelector: @selector(compare:)];
     for (int j=0;j<sortedKeys.count;j++) {
         NSString *segmentKey = sortedKeys[j];
         NSDictionary *segment = segments[segmentKey];
         NSString *segmentText = [text substringWithRange:NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue])];
-        NSArray *arr = [segmentText componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \t\n.#<>"]];
-        
+        NSMutableDictionary *dic = [self.helper occurancesOfString:@[@"\\b([a-z](\\w)*)\\b"] text:segmentText addParen:NO];
+        if (dic && dic.count>0) {
+            for (NSNumber *key in dic) {
+                NSString *val = dic[key];
+                if (keywords[val]) {
+                    if (!segments[segmentKey][@"keywords"]) {
+                        segments[segmentKey] = [segment mutableCopy];
+                        segments[segmentKey][@"keywords"] = [@[] mutableCopy];
+                    }
+                    [segments[segmentKey][@"keywords"] addObject:@{@"type":@"keyword", @"specifies":keywords[val], @"location":key, @"length":@(val.length)}];
+                }
+            }
+        }
     }
 }
 

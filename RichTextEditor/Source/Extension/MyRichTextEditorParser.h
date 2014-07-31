@@ -9,5 +9,5 @@
 #import <Foundation/Foundation.h>
 
 @interface MyRichTextEditorParser : NSObject
-- (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys;
+- (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys keywords:(NSDictionary*)keywords;
 @end

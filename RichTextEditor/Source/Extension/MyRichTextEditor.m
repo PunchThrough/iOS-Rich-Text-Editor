@@ -16,8 +16,8 @@
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @property (nonatomic, strong) MyRichTextEditorParser *parser;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *keyboardHeight;
-@property (nonatomic, strong) NSMutableDictionary *tokens;
-@property (nonatomic, strong) NSMutableArray *tokenKeys;
+@property (nonatomic, strong) NSMutableDictionary *segments;
+@property (nonatomic, strong) NSMutableArray *segmentKeys;
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordsDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordColorsDic;
@@ -42,8 +42,8 @@
 
     self.indentation = @"    ";
     
-    self.tokens = [@{} mutableCopy];
-    self.tokenKeys = [@[] mutableCopy];
+    self.segments = [@{} mutableCopy];
+    self.segmentKeys = [@[] mutableCopy];
     
     [self observeKeyboard];
     
@@ -140,7 +140,7 @@
         NSRange selectedRange = textView.selectedRange;
 
         // old range used to calculate how much text we need to process
-        NSDictionary *oldToken = [self.helper tokenForRange:range fromTokens:self.tokens];
+        NSDictionary *oldToken = [self.helper tokenForRange:range fromTokens:self.segments];
         NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
         
         // backspace pressed
@@ -150,8 +150,8 @@
         // newline entered
         else if ([text isEqualToString:@"\n"]) {
             NSString *beginningText = [textView.text substringToIndex:range.location];
-            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText].count;
-            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText].count;
+            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText addParen:YES].count;
+            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText addParen:YES].count;
             NSInteger indentationCt = leftBrackers - rightBrackers;
             if (indentationCt<0) {
                 indentationCt = 0;
@@ -196,11 +196,11 @@
         }
         
         NSDate *date = [NSDate date];
-        [self.parser parseText:self.text segment:self.tokens segmentKeys:self.tokenKeys];
+        [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
         NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
         NSLog(@"XXX %f",t);
         
-        NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.tokens];
+        NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.segments];
         NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
         
         // apply all tokens
@@ -217,9 +217,9 @@
         else {
             // should never get here
         }
-        NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.tokens tokenKeys:self.tokenKeys];
+        NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.segments tokenKeys:self.segmentKeys];
         for (NSDictionary *token in tokens) {
-            [self applyToken:token];
+            [self applySegment:token disableScroll:YES];
         }
         
         // backspace pressed
@@ -241,23 +241,35 @@
         return NO;
 }
 
-- (void)applyToken:(NSDictionary*)token {
-    if (token) {
-        // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+// scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+
+- (void)applySegment:(NSDictionary*)segment disableScroll:(BOOL)disableScroll {
+
+    if (disableScroll) {
         self.scrollEnabled = NO;
-        NSRange range = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
-        if ([token[@"type"] isEqualToString:@"comment"]) {
+    }
+    if (segment) {
+        NSRange range = NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue]);
+        if ([segment[@"type"] isEqualToString:@"comment"]) {
             [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
         }
-        else if ([token[@"type"] isEqualToString:@"string"]) {
+        else if ([segment[@"type"] isEqualToString:@"string"]) {
             [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:range];
         }
-        else if ([token[@"type"] isEqualToString:@"invalid-string"]) {
+        else if ([segment[@"type"] isEqualToString:@"invalid-string"]) {
             [self applyAttributes:self.invalidStringColor forKey:NSForegroundColorAttributeName atRange:range];
         }
-        else if ([token[@"type"] isEqualToString:@"code"]) {
+        else if ([segment[@"type"] isEqualToString:@"code"]) {
            [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
+            if (segment[@"keywords"]) {
+                for (NSDictionary *keyword in segment[@"keywords"]) {
+                    NSRange r = NSMakeRange([keyword[@"location"] integerValue]+range.location, [keyword[@"length"] integerValue]);
+                    [self applyAttributes:[UIColor purpleColor] forKey:NSForegroundColorAttributeName atRange:r];
+                }
+            }
         }
+    }
+    if (disableScroll) {
         self.scrollEnabled = YES;
     }
 }
@@ -307,11 +319,11 @@
 - (void)loadWithText:(NSString *)text
 {
     self.text = text;
-    [self.parser parseText:self.text segment:self.tokens segmentKeys:self.tokenKeys];
+    [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
     [self removeAttributeForKey:NSForegroundColorAttributeName atRange:NSMakeRange(0, self.text.length)];
-    for (NSNumber *tokenKey in self.tokens) {
-        NSDictionary *newToken = self.tokens[tokenKey];
-        [self applyToken:newToken];
+    for (NSNumber *segmentKey in self.segments) {
+        NSDictionary *newToken = self.segments[segmentKey];
+        [self applySegment:newToken disableScroll:NO];
     }
 }
 
