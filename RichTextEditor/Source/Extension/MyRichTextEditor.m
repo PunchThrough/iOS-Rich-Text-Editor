@@ -150,8 +150,8 @@
         // newline entered
         else if ([text isEqualToString:@"\n"]) {
             NSString *beginningText = [textView.text substringToIndex:range.location];
-            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText addParen:YES].count;
-            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText addParen:YES].count;
+            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText addCaptureParen:YES].count;
+            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText addCaptureParen:YES].count;
             NSInteger indentationCt = leftBrackers - rightBrackers;
             if (indentationCt<0) {
                 indentationCt = 0;
@@ -217,11 +217,16 @@
         else {
             // should never get here
         }
+    
+        date = [NSDate date];
+
         NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.segments tokenKeys:self.segmentKeys];
         for (NSDictionary *token in tokens) {
             [self applySegment:token disableScroll:YES];
         }
-        
+        t = [[NSDate date] timeIntervalSinceDate:date];
+        NSLog(@"YYY %f",t);
+    
         // backspace pressed
         if ([text isEqualToString:@""]) {
             if (selectedRange.location == 0) {
@@ -265,6 +270,12 @@
                 for (NSDictionary *keyword in segment[@"keywords"]) {
                     NSRange r = NSMakeRange([keyword[@"location"] integerValue]+range.location, [keyword[@"length"] integerValue]);
                     [self applyAttributes:[UIColor purpleColor] forKey:NSForegroundColorAttributeName atRange:r];
+                }
+            }
+            if (segment[@"numbers"]) {
+                for (NSDictionary *keyword in segment[@"numbers"]) {
+                    NSRange r = NSMakeRange([keyword[@"location"] integerValue]+range.location, [keyword[@"length"] integerValue]);
+                    [self applyAttributes:[UIColor blueColor] forKey:NSForegroundColorAttributeName atRange:r];
                 }
             }
         }

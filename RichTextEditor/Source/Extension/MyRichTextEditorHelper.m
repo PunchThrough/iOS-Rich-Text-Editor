@@ -72,14 +72,8 @@
     return NO;
 }
 
-// inspired from http://stackoverflow.com/questions/2166809/number-of-occurrences-of-a-substring-in-an-nsstring
-// returns a dic where the key is the index and value being the found string
-// TODO : experiment with http://stackoverflow.com/questions/7489130/nsstring-find-parts-of-string-in-another-string
 
-- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addParen:(BOOL)addParen {
-#define REGEX 1
-    
-#if REGEX == 1
+- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen {
     NSError *error=NULL;
     NSMutableArray *temp = [@[] mutableCopy];
     for (NSString *str in strArray) {
@@ -110,24 +104,23 @@
     }
     
     return retDic;
-#else
-    NSMutableDictionary *retDic = [@{} mutableCopy];
-    NSUInteger length = [text length];
-    for (NSString *str in strArray) {
-        NSRange range = NSMakeRange(0, length);
-        while(range.location != NSNotFound)
-        {
-            range = [text rangeOfString: str options:0 range:range];
-            if(range.location != NSNotFound)
-            {
-                retDic[[NSNumber numberWithInteger:range.location]] = str;
-                range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
-                continue;
-            }
-        }
+}
+
+- (BOOL)isNumber:(NSString*)text {
+    
+    if (text == nil || text.length == 0) {
+        return NO;
     }
-    return retDic;
-#endif
+    NSError *error=NULL;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d(x|b)?\\d*" options:nil error:&error];
+    if (error) {
+        NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+    }
+    
+    NSRange textRange = NSMakeRange(0, text.length);
+    NSRange matchRange = [regex rangeOfFirstMatchInString:text options:NSMatchingReportCompletion range:textRange];
+    
+    return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
 }
 
 @end

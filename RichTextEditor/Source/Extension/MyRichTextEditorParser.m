@@ -54,7 +54,7 @@ typedef enum {
 }
 
 - (void)parseStringCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
-    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text addParen:YES];
+    NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text addCaptureParen:YES];
     
     for (NSNumber *num in [symbolsDic copy]) {
         NSString *val = symbolsDic[num];
@@ -246,16 +246,30 @@ typedef enum {
         NSString *segmentKey = sortedKeys[j];
         NSDictionary *segment = segments[segmentKey];
         NSString *segmentText = [text substringWithRange:NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue])];
-        NSMutableDictionary *dic = [self.helper occurancesOfString:@[@"\\b([a-z](\\w)*)\\b"] text:segmentText addParen:NO];
+        NSMutableDictionary *dic = [self.helper occurancesOfString:@[@"\\b((\\w)*)\\b"] text:segmentText addCaptureParen:NO];
         if (dic && dic.count>0) {
             for (NSNumber *key in dic) {
                 NSString *val = dic[key];
+                if (val.length==0) {
+                    continue;
+                }
                 if (keywords[val]) {
                     if (!segments[segmentKey][@"keywords"]) {
-                        segments[segmentKey] = [segment mutableCopy];
+                        if (![segments[segmentKey] isKindOfClass:[NSMutableDictionary class]]) {
+                            segments[segmentKey] = [segment mutableCopy];
+                        }
                         segments[segmentKey][@"keywords"] = [@[] mutableCopy];
                     }
                     [segments[segmentKey][@"keywords"] addObject:@{@"type":@"keyword", @"specifies":keywords[val], @"location":key, @"length":@(val.length)}];
+                }
+                else if ([self.helper isNumber:val]) {
+                    if (!segments[segmentKey][@"numbers"]) {
+                        if (![segments[segmentKey] isKindOfClass:[NSMutableDictionary class]]) {
+                            segments[segmentKey] = [segment mutableCopy];
+                        }
+                        segments[segmentKey][@"numbers"] = [@[] mutableCopy];
+                    }
+                    [segments[segmentKey][@"numbers"] addObject:@{@"type":@"number", @"location":key, @"length":@(val.length)}];
                 }
             }
         }

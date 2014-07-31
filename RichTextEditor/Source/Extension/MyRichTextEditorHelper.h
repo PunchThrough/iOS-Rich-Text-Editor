@@ -9,8 +9,9 @@
 #import "MyRichTextEditor.h"
 
 @interface MyRichTextEditorHelper : NSObject 
-- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addParen:(BOOL)addParen;
+- (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen;
 - (BOOL)text:(NSString*)text range:(NSRange)range leftNeighbor:(NSString*)left rightNeighbor:(NSString*)right;
 - (NSDictionary*)tokenForRange:(NSRange)range fromTokens:(NSDictionary*)tokens;
 - (NSMutableArray*)tokensForRange:(NSRange)wholeRange fromTokens:(NSDictionary*)tokens tokenKeys:(NSArray*)tokenKeys;
+- (BOOL)isNumber:(NSString*)text;
 @end
