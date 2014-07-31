@@ -10,5 +10,5 @@
 
 @interface MyRichTextEditorParser : NSObject
 - (void)parseText:(NSString*)text segment:(NSMutableDictionary*)segments segmentKeys:(NSMutableArray*)segmentKeys keywords:(NSDictionary*)keywords;
-- (void)parseLineNumText:(NSString*)text width:(NSUInteger)width lines:(NSMutableArray*)lines;
+- (void)parseLineNumText:(NSString*)text lines:(NSMutableArray*)lines textView:(UITextView*)textView;
 @end

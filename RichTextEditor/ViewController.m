@@ -22,12 +22,13 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
 
+    [self preferredContentSizeChanged];
+    
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
     if (filePath) {
         NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
         if (myText) {
             [self.myRichTextEditor loadWithText:myText];
-            [self preferredContentSizeChanged];
         }
     }
     

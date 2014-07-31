@@ -340,7 +340,7 @@
     }
     
     NSMutableArray *arr = [@[] mutableCopy];
-    [self.parser parseLineNumText:self.text width:self.frame.size.width lines:arr];
+    [self.parser parseLineNumText:self.text lines:arr textView:self];
     
 }
 
