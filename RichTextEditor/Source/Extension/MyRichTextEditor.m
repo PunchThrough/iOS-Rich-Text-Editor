@@ -21,6 +21,7 @@
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordsDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordColorsDic;
+@property (nonatomic, strong) NSMutableArray *lines;
 @end
 
 @implementation MyRichTextEditor
@@ -44,6 +45,7 @@
     
     self.segments = [@{} mutableCopy];
     self.segmentKeys = [@[] mutableCopy];
+    self.lines = [@[] mutableCopy];
     
     [self observeKeyboard];
     
@@ -87,8 +89,8 @@
     filePath = [[NSBundle mainBundle] pathForResource:@"textColors" ofType:@"json"];
     if (filePath) {
         NSData *data = [NSData dataWithContentsOfFile:filePath];
-        if (data) {
-            // do something useful
+        if (!data) {
+            NSLog(@"textColors file not found");
         }
         NSError *error;
         NSDictionary *textColors = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -336,6 +338,10 @@
         NSDictionary *newToken = self.segments[segmentKey];
         [self applySegment:newToken disableScroll:NO];
     }
+    
+    NSMutableArray *arr = [@[] mutableCopy];
+    [self.parser parseLineNumText:self.text width:self.frame.size.width lines:arr];
+    
 }
 
 @end

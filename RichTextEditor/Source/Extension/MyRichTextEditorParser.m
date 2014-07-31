@@ -51,6 +51,8 @@ typedef enum {
     [segments addEntriesFromDictionary:otherSegments];
     NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
     [segmentKeys addObjectsFromArray:sortedKeys];
+    
+    
 }
 
 - (void)parseStringCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
@@ -274,6 +276,18 @@ typedef enum {
             }
         }
     }
+}
+
+- (void)parseLineNumText:(NSString*)text width:(NSUInteger)width lines:(NSMutableArray*)lines {
+    [lines removeAllObjects];
+    
+    NSArray *arr = [text componentsSeparatedByString:@"\n"];
+
+    for (NSString *str in arr) {
+        NSUInteger height = [self.helper viewHeightForText:str width:width];
+        NSLog(@"%@ %d",str, height);
+    }
+    
 }
 
 @end

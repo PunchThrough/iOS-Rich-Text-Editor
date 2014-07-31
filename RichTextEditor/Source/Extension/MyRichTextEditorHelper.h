@@ -14,4 +14,5 @@
 - (NSDictionary*)tokenForRange:(NSRange)range fromTokens:(NSDictionary*)tokens;
 - (NSMutableArray*)tokensForRange:(NSRange)wholeRange fromTokens:(NSDictionary*)tokens tokenKeys:(NSArray*)tokenKeys;
 - (BOOL)isNumber:(NSString*)text;
+- (NSUInteger)viewHeightForText:(NSString*)text width:(NSUInteger)width;
 @end

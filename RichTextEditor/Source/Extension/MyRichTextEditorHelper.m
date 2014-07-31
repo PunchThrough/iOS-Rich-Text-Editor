@@ -9,6 +9,7 @@
 #import "MyRichTextEditorHelper.h"
 
 @interface MyRichTextEditorHelper()
+@property (nonatomic, strong) UITextView *tempTextView;
 @end
 
 @implementation MyRichTextEditorHelper
@@ -121,6 +122,18 @@
     NSRange matchRange = [regex rangeOfFirstMatchInString:text options:NSMatchingReportCompletion range:textRange];
     
     return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
+}
+
+
+// based on http://stackoverflow.com/questions/50467/how-do-i-size-a-uitextview-to-its-content
+
+- (NSUInteger)viewHeightForText:(NSString*)text width:(NSUInteger)width {
+    if (!self.tempTextView || self.tempTextView.frame.size.width != width) {
+        self.tempTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, width, 1000)];
+    }
+    self.tempTextView.text = text;
+    CGSize sizeThatShouldFitTheContent = [self.tempTextView sizeThatFits:self.tempTextView.frame.size];
+    return sizeThatShouldFitTheContent.height;
 }
 
 @end

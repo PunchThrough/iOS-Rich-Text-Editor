@@ -1,3 +1,5 @@
+
+
 //
 //  ViewController.m
 //  RichTextEdtor
@@ -18,14 +20,24 @@
 {
     [super viewWillAppear:animated];
     
-    // debugging
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
+
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
     if (filePath) {
         NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
         if (myText) {
             [self.myRichTextEditor loadWithText:myText];
+            [self preferredContentSizeChanged];
         }
     }
+    
+//    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(100, 100, 100, 100)];
+//    v.backgroundColor = [UIColor redColor];
+//    [self.myRichTextEditor addSubview:v];
+}
+
+- (void)preferredContentSizeChanged {
+    self.myRichTextEditor.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
 }
 
 - (void)didReceiveMemoryWarning
