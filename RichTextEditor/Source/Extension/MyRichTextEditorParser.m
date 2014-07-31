@@ -278,13 +278,13 @@ typedef enum {
     }
 }
 
-- (void)parseLineNumText:(NSString*)text width:(NSUInteger)width lines:(NSMutableArray*)lines {
+- (void)parseLineNumText:(NSString*)text lines:(NSMutableArray*)lines textView:(UITextView*)textView {
     [lines removeAllObjects];
     
     NSArray *arr = [text componentsSeparatedByString:@"\n"];
 
     for (NSString *str in arr) {
-        NSUInteger height = [self.helper viewHeightForText:str width:width];
+        NSUInteger height = [self.helper viewHeightForText:str textView:textView];
         NSLog(@"%@ %d",str, height);
     }
     

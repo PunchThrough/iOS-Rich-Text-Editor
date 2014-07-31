@@ -127,11 +127,12 @@
 
 // based on http://stackoverflow.com/questions/50467/how-do-i-size-a-uitextview-to-its-content
 
-- (NSUInteger)viewHeightForText:(NSString*)text width:(NSUInteger)width {
-    if (!self.tempTextView || self.tempTextView.frame.size.width != width) {
-        self.tempTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, width, 1000)];
+- (NSUInteger)viewHeightForText:(NSString*)text textView:(UITextView*)textView {
+    if (!self.tempTextView || self.tempTextView.frame.size.width != textView.frame.size.width) {
+        self.tempTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, textView.frame.size.width, 1000)];
     }
     self.tempTextView.text = text;
+    self.tempTextView.font = textView.font;
     CGSize sizeThatShouldFitTheContent = [self.tempTextView sizeThatFits:self.tempTextView.frame.size];
     return sizeThatShouldFitTheContent.height;
 }
