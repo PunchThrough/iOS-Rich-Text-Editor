@@ -46,16 +46,6 @@
 
 #pragma mark - Initialization -
 
-- (id)init
-{
-    if (self = [super init])
-	{
-        [self commonInitialization];
-    }
-	
-    return self;
-}
-
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame])
@@ -64,12 +54,6 @@
     }
 	
     return self;
-}
-
-- (void)awakeFromNib
-{
-    [super awakeFromNib];
-    [self commonInitialization];
 }
 
 - (void)commonInitialization
@@ -86,13 +70,13 @@
 	[self updateToolbarState];
 	
 	// When text changes check to see if we need to add bullet, or delete bullet on backspace
-//	[[NSNotificationCenter defaultCenter] addObserverForName:UITextViewTextDidChangeNotification
-//													  object:self
-//													   queue:nil
-//												  usingBlock:^(NSNotification *n){
-//													  [self applyBulletListIfApplicable];
-//													  [self deleteBulletListWhenApplicable];
-//												  }];
+	[[NSNotificationCenter defaultCenter] addObserverForName:UITextViewTextDidChangeNotification
+													  object:self
+													   queue:nil
+												  usingBlock:^(NSNotification *n){
+													  [self applyBulletListIfApplicable];
+													  [self deleteBulletListWhenApplicable];
+												  }];
 }
 
 - (void)initializeToolbar

@@ -1,3 +1,5 @@
+
+
 //
 //  ViewController.m
 //  RichTextEdtor
@@ -9,7 +11,7 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet MyRichTextEditor *myRichTextEditor;
+@property (strong, nonatomic) MyRichTextEditor *myRichTextEditor;
 @end
 
 @implementation ViewController
@@ -18,14 +20,26 @@
 {
     [super viewWillAppear:animated];
     
-    // debugging
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
+
+    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:YES];
+    self.myRichTextEditor.translatesAutoresizingMaskIntoConstraints = NO;
+
+    [self.view addSubview:self.myRichTextEditor];
+    
+    NSDictionary *views = @{@"myRichTextEditor":self.myRichTextEditor};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[myRichTextEditor]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[myRichTextEditor]|" options:0 metrics:nil views:views]];
+    
+    [self preferredContentSizeChanged];
+    
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
-    if (filePath) {
-        NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
-        if (myText) {
-            [self.myRichTextEditor loadWithText:myText];
-        }
-    }
+    NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
+    [self.myRichTextEditor loadWithText:myText];    
+}
+
+- (void)preferredContentSizeChanged {
+    self.myRichTextEditor.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
 }
 
 - (void)didReceiveMemoryWarning

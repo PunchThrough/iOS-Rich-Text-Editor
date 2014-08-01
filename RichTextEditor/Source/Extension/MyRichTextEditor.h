@@ -9,7 +9,8 @@
 #import "RichTextEditor.h"
 #import "RichTextEditor+Protected.h"
 
-@interface MyRichTextEditor : RichTextEditor 
+@interface MyRichTextEditor : RichTextEditor
+- (id)initWithLineNumbers:(BOOL)lineNumbers;
 - (void)loadWithText:(NSString *)text;
 @property (nonatomic, strong) UIColor *commentColor;
 @property (nonatomic, strong) UIColor *stringColor;

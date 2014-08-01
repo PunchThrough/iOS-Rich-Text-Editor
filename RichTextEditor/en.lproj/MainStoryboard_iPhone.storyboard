@@ -16,30 +16,8 @@
                     <view key="view" contentMode="scaleToFill" id="3">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" text="type here" translatesAutoresizingMaskIntoConstraints="NO" id="ogf-QZ-Hbn" customClass="MyRichTextEditor">
-                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                <connections>
-                                    <outlet property="dataSource" destination="2" id="0g5-59-77a"/>
-                                    <outlet property="keyboardHeight" destination="Jzi-MI-Cvi" id="unp-fJ-zWT"/>
-                                </connections>
-                            </textView>
-                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                        <constraints>
-                            <constraint firstItem="ogf-QZ-Hbn" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="1Em-a6-2Kf"/>
-                            <constraint firstItem="TAn-d8-hoO" firstAttribute="top" secondItem="ogf-QZ-Hbn" secondAttribute="bottom" id="Jzi-MI-Cvi"/>
-                            <constraint firstAttribute="trailing" secondItem="ogf-QZ-Hbn" secondAttribute="trailing" id="Uxm-7f-nJ0"/>
-                            <constraint firstItem="ogf-QZ-Hbn" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" symbolic="YES" id="btk-ZY-ZRE"/>
-                        </constraints>
                     </view>
-                    <connections>
-                        <outlet property="myRichTextEditor" destination="ogf-QZ-Hbn" id="mej-oH-LmN"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
             </objects>
