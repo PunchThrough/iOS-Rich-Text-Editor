@@ -367,11 +367,7 @@
     for (NSNumber *segmentKey in self.segments) {
         NSDictionary *newToken = self.segments[segmentKey];
         [self applySegment:newToken disableScroll:NO];
-    }
-    
-    NSMutableArray *arr = [@[] mutableCopy];
-    [self.parser parseLineNumText:self.text lines:arr textView:self];
-    
+    }    
 }
 
 - (void) drawRect:(CGRect)rect {
