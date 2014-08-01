@@ -109,8 +109,8 @@
     NSRange selectedRange = textView.selectedRange;
 
     // old range used to calculate how much text we need to process
-    NSDictionary *oldToken = [self.helper segmentsForRange:range fromSegments:self.segments];
-    NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
+    NSDictionary *oldSegment = [self.helper segmentForRange:range fromSegments:self.segments];
+    NSRange oldRange = NSMakeRange([oldSegment[@"location"] integerValue], [oldSegment[@"length"] integerValue]);
     
     // backspace pressed
     if ([text isEqualToString:@""]) {
@@ -169,8 +169,8 @@
     NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
     NSLog(@"parse %f",t);
     
-    NSDictionary *newToken = [self.helper segmentsForRange:range fromSegments:self.segments];
-    NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
+    NSDictionary *newSegment = [self.helper segmentForRange:range fromSegments:self.segments];
+    NSRange newRange = NSMakeRange([newSegment[@"location"] integerValue], [newSegment[@"length"] integerValue]);
         
     // apply all tokens
     NSRange bothRanges;

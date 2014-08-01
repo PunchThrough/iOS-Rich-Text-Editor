@@ -9,56 +9,63 @@
 #import "MyRichTextEditorHelper.h"
 
 @interface MyRichTextEditorHelper()
-@property (nonatomic, strong) UITextView *tempTextView;
 @end
 
 @implementation MyRichTextEditorHelper
 
-- (NSDictionary*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)tokens {
+// returns a segment that is in the location of the passed in range
+
+- (NSDictionary*)segmentForRange:(NSRange)range fromSegments:(NSDictionary*)segments {
     NSUInteger min = NSUIntegerMax;
-    NSNumber *keyToken;
-    for (NSNumber *key in tokens) {
+    NSNumber *segmentKey;
+    for (NSNumber *key in segments) {
         int diff = abs((int)[key unsignedIntegerValue] - (int)range.location);
         if (([key integerValue] <= range.location) && (diff <= min)) {
             min = diff;
-            keyToken = key;
+            segmentKey = key;
         }
     }
-    if (keyToken) {
-        NSDictionary *token = tokens[keyToken];
-        NSUInteger location = [token[@"location"] integerValue];
-        NSUInteger length = [token[@"length"] integerValue];
+    // get the intersection of ranges between the range input and the range of the segment
+    // we just found
+    if (segmentKey) {
+        NSDictionary *segment = segments[segmentKey];
+        NSUInteger location = [segment[@"location"] integerValue];
+        NSUInteger length = [segment[@"length"] integerValue];
         // handles case where NSIntersectionRange returns false positive
         if (range.location == 0 && range.length == 0) {
             if (location == 0) {
-                return token;
+                return segment;
             }
         }
         else {
             NSRange intersectionRange = NSIntersectionRange(range, NSMakeRange(location, length));
             if (intersectionRange.length != 0 || intersectionRange.location != 0) {
-                return token;
+                return segment;
             }
         }
     }
     return nil;
 }
 
-- (NSMutableArray*)segmentsForRange:(NSRange)wholeRange fromSegments:(NSDictionary*)tokens segmentKeys:(NSArray*)tokenKeys {
+// returns the segments that are within the range
+
+- (NSMutableArray*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)segments segmentKeys:(NSArray*)segmentKeys {
     NSMutableArray *retArr = nil;
-    for (NSNumber *key in tokenKeys) {
-        NSDictionary *token = tokens[key];
-        NSRange tokenRange = NSMakeRange([token[@"location"] integerValue], [token[@"length"] integerValue]);
-        NSRange intersectionRange = NSIntersectionRange(wholeRange, tokenRange);
+    for (NSNumber *key in segmentKeys) {
+        NSDictionary *segment = segments[key];
+        NSRange segmentRange = NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue]);
+        NSRange intersectionRange = NSIntersectionRange(range, segmentRange);
         if (intersectionRange.length!= 0 || intersectionRange.location != 0) {
             if (!retArr) {
                 retArr =  [@[] mutableCopy];
             }
-            [retArr addObject:token];
+            [retArr addObject:segment];
         }
     }
     return retArr;
 }
+
+// returns if the text is surrounded on the left and right
 
 - (BOOL)text:(NSString*)text range:(NSRange)range leftNeighbor:(NSString*)left rightNeighbor:(NSString*)right  {
     if (text.length < range.location+range.length+1) {
@@ -73,6 +80,7 @@
     return NO;
 }
 
+// returns a dic keyed by the location with a value of the string
 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen {
     NSError *error=NULL;
@@ -107,6 +115,8 @@
     return retDic;
 }
 
+// utility to determine if the text is a number
+
 - (BOOL)isNumber:(NSString*)text {
     
     if (text == nil || text.length == 0) {
@@ -124,6 +134,8 @@
     return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
 }
 
+// returns a dic based on the arduino keywords file format
+
 - (NSMutableDictionary*)keywordsForPath:(NSString*)filePath {
     NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
     NSArray *arr = [myText componentsSeparatedByString:@"\n"];
@@ -133,6 +145,8 @@
             continue;
         }
         
+        // arduino file tends to have text \t text \t text but sometimes has an empty second text, so
+        // in that case, we're checking the third one
         NSArray *words = [line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         if (words.count >= 2) {
             if (((NSString*)words[1]).length == 0 && words.count>=3) {
@@ -145,6 +159,8 @@
     }
     return keywordsDic;
 }
+
+// returns a dic of colors mapping to a data type
 
 - (NSMutableDictionary*)colorsForPath:(NSString*)filePath {
     NSMutableDictionary *colorsDic = [@{} mutableCopy];
