@@ -22,7 +22,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
 
-    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:NO];
+    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:YES];
     self.myRichTextEditor.translatesAutoresizingMaskIntoConstraints = NO;
 
     [self.view addSubview:self.myRichTextEditor];

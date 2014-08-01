@@ -16,7 +16,6 @@
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource, UITextViewDelegate>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @property (nonatomic, strong) MyRichTextEditorParser *parser;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *keyboardHeight;
 @property (nonatomic, strong) NSMutableDictionary *segments;
 @property (nonatomic, strong) NSMutableArray *segmentKeys;
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
@@ -319,7 +318,7 @@
 
 #pragma mark UITextViewTextDidChangeNotification
 
-// http://www.think-in-g.net/ghawk/blog/2012/09/practicing-auto-layout-an-example-of-keyboard-sensitive-layout/
+// inspired by http://www.think-in-g.net/ghawk/blog/2012/09/practicing-auto-layout-an-example-of-keyboard-sensitive-layout/
 
 // The callback for frame-changing of keyboard
 - (void)keyboardDidShow:(NSNotification *)notification {
@@ -330,16 +329,11 @@
     BOOL isPortrait = UIDeviceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation);
     CGFloat height = isPortrait ? keyboardFrame.size.height : keyboardFrame.size.width;
     
-    // Because the "space" is actually the difference between the bottom lines of the 2 views,
-    // we need to set a negative constant value here.
-    self.keyboardHeight.constant = height;
+    self.contentInset = UIEdgeInsetsMake(0, 0, height, 0);
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {
-    self.keyboardHeight.constant = 0;
-    [UIView animateWithDuration:0.01 animations:^{
-        [self layoutIfNeeded];
-    }];
+    self.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
 }
 
 - (void)observeKeyboard {
@@ -367,7 +361,7 @@
     for (NSNumber *segmentKey in self.segments) {
         NSDictionary *newToken = self.segments[segmentKey];
         [self applySegment:newToken disableScroll:NO];
-    }    
+    }
 }
 
 - (void) drawRect:(CGRect)rect {
