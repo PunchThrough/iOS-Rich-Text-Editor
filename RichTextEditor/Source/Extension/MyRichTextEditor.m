@@ -12,6 +12,7 @@
 #import "MyRichTextEditorHelper.h"
 #import "MyRichTextEditorParser.h"
 #import "LineNumberLayoutManager.h"
+#import "NSAttributedString+MyRichTextEditor.h"
 
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource, UITextViewDelegate>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
@@ -20,7 +21,7 @@
 @property (nonatomic, strong) NSMutableArray *segmentKeys;
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordsDic;
-@property (nonatomic, strong) NSMutableDictionary *keywordColorsDic;
+@property (nonatomic, strong) NSMutableDictionary *colorsDic;
 @property (nonatomic, strong) NSMutableArray *lines;
 @property (nonatomic, readwrite) NSUInteger lineNumberGutterWidth;
 @end
@@ -85,9 +86,6 @@
     
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"text" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
-    if (data) {
-        // do something useful
-    }
     NSError *error;
     NSArray *textJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
     if (error)
@@ -99,221 +97,126 @@
     }
     
     filePath = [[NSBundle mainBundle] pathForResource:@"keywords" ofType:@"txt"];
-    if (filePath) {
-        NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
-        NSArray *arr = [myText componentsSeparatedByString:@"\n"];
-        self.keywordsDic = [@{} mutableCopy];
-        for (NSString *line in arr) {
-            if ([line hasPrefix:@"#"]) {
-                continue;
-            }
-            
-            NSArray *words = [line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            if (words.count >= 2) {
-                if (((NSString*)words[1]).length == 0 && words.count>=3) {
-                    self.keywordsDic[words[0]] = words[2];
-                }
-                else {
-                    self.keywordsDic[words[0]] = words[1];
-                }
-            }
-        }
-    }
-    
+    self.keywordsDic = [self.helper keywordsForPath:filePath];
     filePath = [[NSBundle mainBundle] pathForResource:@"textColors" ofType:@"json"];
-    if (filePath) {
-        NSData *data = [NSData dataWithContentsOfFile:filePath];
-        if (!data) {
-            NSLog(@"textColors file not found");
-        }
-        NSError *error;
-        NSDictionary *textColors = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-        if (error)
-            NSLog(@"JSONObjectWithData error: %@", error);
-        NSArray *temp = textColors[@"comments"];
-        if (temp && temp.count == 3) {
-            float red = [temp[0] floatValue];
-            float green = [temp[1] floatValue];
-            float blue = [temp[2] floatValue];
-            self.commentColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
-        }
-        temp = textColors[@"invalid-string"];
-        if (temp && temp.count == 3) {
-            float red = [temp[0] floatValue];
-            float green = [temp[1] floatValue];
-            float blue = [temp[2] floatValue];
-            self.invalidStringColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
-        }
-        temp = textColors[@"string"];
-        if (temp && temp.count == 3) {
-            float red = [temp[0] floatValue];
-            float green = [temp[1] floatValue];
-            float blue = [temp[2] floatValue];
-            self.stringColor = [UIColor colorWithRed:red green:green blue:blue alpha:1];
-        }
-        temp = textColors[@"keywords"];
-        if (temp) {
-            self.keywordColorsDic = [@{} mutableCopy];
-            for (NSDictionary *dic in temp) {
-                for (NSString *key in dic) {
-                    NSArray *val = dic[key];
-                    self.keywordColorsDic[key] = [UIColor colorWithRed:[val[0] floatValue] green:[val[1] floatValue] blue:[val[2] floatValue] alpha:1];
-                }
-            }
-        }
-    }
+    self.colorsDic = [self.helper colorsForPath:filePath];
 }
 
 #pragma mark UITextViewDelegate
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
-        NSRange selectedRange = textView.selectedRange;
+    NSRange selectedRange = textView.selectedRange;
 
-        // old range used to calculate how much text we need to process
-        NSDictionary *oldToken = [self.helper tokenForRange:range fromTokens:self.segments];
-        NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
-        
-        // backspace pressed
-        if ([text isEqualToString:@""]) {
-            [textView deleteBackward];
+    // old range used to calculate how much text we need to process
+    NSDictionary *oldToken = [self.helper segmentsForRange:range fromSegments:self.segments];
+    NSRange oldRange = NSMakeRange([oldToken[@"location"] integerValue], [oldToken[@"length"] integerValue]);
+    
+    // backspace pressed
+    if ([text isEqualToString:@""]) {
+        [textView deleteBackward];
+    }
+    // newline entered
+    else if ([text isEqualToString:@"\n"]) {
+        NSString *beginningText = [textView.text substringToIndex:range.location];
+        NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText addCaptureParen:YES].count;
+        NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText addCaptureParen:YES].count;
+        NSInteger indentationCt = leftBrackers - rightBrackers;
+        if (indentationCt<0) {
+            indentationCt = 0;
         }
-        // newline entered
-        else if ([text isEqualToString:@"\n"]) {
-            NSString *beginningText = [textView.text substringToIndex:range.location];
-            NSUInteger leftBrackers = [self.helper occurancesOfString:@[@"\\{"] text:beginningText addCaptureParen:YES].count;
-            NSUInteger rightBrackers = [self.helper occurancesOfString:@[@"\\}"] text:beginningText addCaptureParen:YES].count;
-            NSInteger indentationCt = leftBrackers - rightBrackers;
-            if (indentationCt<0) {
-                indentationCt = 0;
-            }
-            BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
-            textView.selectedRange = range;
-            
+        BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
+        textView.selectedRange = range;
+        
+        [textView insertText:@"\n"];
+        
+        for (int i=0; i<indentationCt; i++) {
+            [textView insertText:self.indentation];
+        }
+        
+        if (inBrackets) {
             [textView insertText:@"\n"];
-            
-            for (int i=0; i<indentationCt; i++) {
+            for (int i=0; i<indentationCt-1; i++) {
                 [textView insertText:self.indentation];
             }
-            
-            if (inBrackets) {
-                [textView insertText:@"\n"];
-                for (int i=0; i<indentationCt-1; i++) {
-                    [textView insertText:self.indentation];
+            NSRange range = textView.selectedRange;
+            range.location -= (1 + self.indentation.length*(indentationCt-1));
+            selectedRange = range;
+        }
+        else {
+            selectedRange = textView.selectedRange;
+        }
+    }
+    // anything else entered
+    else {
+        // when single char typed, check for replace { for {} , ...
+        if (text.length == 1) {
+            NSDictionary *dic = [self.textReplaceDic objectForKey:text];
+                if (dic) {
+                    [textView insertText:dic[@"value"]];
                 }
-                NSRange range = textView.selectedRange;
-                range.location -= (1 + self.indentation.length*(indentationCt-1));
-                selectedRange = range;
-            }
-            else {
-                selectedRange = textView.selectedRange;
-            }
-        }
-        // anything else entered
-        else {
-            // when single char typed, check for replace { for {} , ...
-            if (text.length == 1) {
-                NSDictionary *dic = [self.textReplaceDic objectForKey:text];
-                    if (dic) {
-                        [textView insertText:dic[@"value"]];
-                    }
-                    else {
-                        [textView insertText:text];
-                    }
-            }
-            else {
-                [textView insertText:text];                
-            }
-        }
-        
-        NSDate *date = [NSDate date];
-        [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
-        NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
-        NSLog(@"XXX %f",t);
-        
-        NSDictionary *newToken = [self.helper tokenForRange:range fromTokens:self.segments];
-        NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
-        
-        // apply all tokens
-        NSRange bothRanges;
-        if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
-            bothRanges = NSUnionRange(oldRange, newRange);
-        }
-        else if (newRange.length>0 || newRange.location>0) {
-            bothRanges = newRange;
-        }
-        else if (oldRange.length>0 || oldRange.location>0) {
-            bothRanges = oldRange;
+                else {
+                    [textView insertText:text];
+                }
         }
         else {
-            // should never get here
+            [textView insertText:text];                
         }
+    }
     
-        date = [NSDate date];
-
-        NSArray *tokens = [self.helper tokensForRange:bothRanges fromTokens:self.segments tokenKeys:self.segmentKeys];
-        for (NSDictionary *token in tokens) {
-            [self applySegment:token disableScroll:YES];
-        }
-        t = [[NSDate date] timeIntervalSinceDate:date];
-        NSLog(@"YYY %f",t);
+    NSDate *date = [NSDate date];
+    [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
+    NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
+    NSLog(@"parse %f",t);
     
-        // backspace pressed
-        if ([text isEqualToString:@""]) {
-            if (selectedRange.location == 0) {
-                textView.selectedRange = NSMakeRange(0, 0);
-            }
-            else {
-                textView.selectedRange = NSMakeRange(selectedRange.location-1, 0);
-            }
-        }
-        else if ([text isEqualToString:@"\n"]) {
-            textView.selectedRange = selectedRange;
+    NSDictionary *newToken = [self.helper segmentsForRange:range fromSegments:self.segments];
+    NSRange newRange = NSMakeRange([newToken[@"location"] integerValue], [newToken[@"length"] integerValue]);
+        
+    // apply all tokens
+    NSRange bothRanges;
+    if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
+        bothRanges = NSUnionRange(oldRange, newRange);
+    }
+    else if (newRange.length>0 || newRange.location>0) {
+        bothRanges = newRange;
+    }
+    else if (oldRange.length>0 || oldRange.location>0) {
+        bothRanges = oldRange;
+    }
+    else {
+        // should never get here
+    }
+
+    date = [NSDate date];
+
+    NSArray *segments = [self.helper segmentsForRange:bothRanges fromSegments:self.segments segmentKeys:self.segmentKeys];
+
+    // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+    self.scrollEnabled = NO;
+    NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
+    [attrString applySegments:segments colorsDic:self.colorsDic];
+    [self setAttributedText:attrString];
+    self.scrollEnabled = YES;
+    t = [[NSDate date] timeIntervalSinceDate:date];
+    NSLog(@"attr strings %f",t);
+
+    // backspace pressed
+    if ([text isEqualToString:@""]) {
+        if (selectedRange.location == 0) {
+            textView.selectedRange = NSMakeRange(0, 0);
         }
         else {
-            textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
-        }
-        
-        return NO;
-}
-
-// scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
-
-- (void)applySegment:(NSDictionary*)segment disableScroll:(BOOL)disableScroll {
-
-    if (disableScroll) {
-        self.scrollEnabled = NO;
-    }
-    if (segment) {
-        NSRange range = NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue]);
-        if ([segment[@"type"] isEqualToString:@"comment"]) {
-            [self applyAttributes:self.commentColor forKey:NSForegroundColorAttributeName atRange:range];
-        }
-        else if ([segment[@"type"] isEqualToString:@"string"]) {
-            [self applyAttributes:self.stringColor forKey:NSForegroundColorAttributeName atRange:range];
-        }
-        else if ([segment[@"type"] isEqualToString:@"invalid-string"]) {
-            [self applyAttributes:self.invalidStringColor forKey:NSForegroundColorAttributeName atRange:range];
-        }
-        else if ([segment[@"type"] isEqualToString:@"code"]) {
-           [self removeAttributeForKey:NSForegroundColorAttributeName atRange:range];
-            if (segment[@"keywords"]) {
-                for (NSDictionary *keyword in segment[@"keywords"]) {
-                    NSRange r = NSMakeRange([keyword[@"location"] integerValue]+range.location, [keyword[@"length"] integerValue]);
-                    [self applyAttributes:[UIColor purpleColor] forKey:NSForegroundColorAttributeName atRange:r];
-                }
-            }
-            if (segment[@"numbers"]) {
-                for (NSDictionary *keyword in segment[@"numbers"]) {
-                    NSRange r = NSMakeRange([keyword[@"location"] integerValue]+range.location, [keyword[@"length"] integerValue]);
-                    [self applyAttributes:[UIColor blueColor] forKey:NSForegroundColorAttributeName atRange:r];
-                }
-            }
+            textView.selectedRange = NSMakeRange(selectedRange.location-1, 0);
         }
     }
-    if (disableScroll) {
-        self.scrollEnabled = YES;
+    else if ([text isEqualToString:@"\n"]) {
+        textView.selectedRange = selectedRange;
     }
+    else {
+        textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
+    }
+    
+    return NO;
 }
 
 #pragma mark UITextViewTextDidChangeNotification
@@ -358,10 +261,10 @@
     self.text = text;
     [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
     [self removeAttributeForKey:NSForegroundColorAttributeName atRange:NSMakeRange(0, self.text.length)];
-    for (NSNumber *segmentKey in self.segments) {
-        NSDictionary *newToken = self.segments[segmentKey];
-        [self applySegment:newToken disableScroll:NO];
-    }
+    
+    NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
+    [attrString applySegments:[self.segments allValues] colorsDic:self.colorsDic];
+    [self setAttributedText:attrString];
 }
 
 - (void) drawRect:(CGRect)rect {

@@ -111,6 +111,10 @@
 		96A07AEB19844E2F0025561B /* menu~iphone.json in Resources */ = {isa = PBXBuildFile; fileRef = 96A07AE919844E2F0025561B /* menu~iphone.json */; };
 		96B023AC198B1D8200C29759 /* LineNumberLayoutManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B023A9198B1D8200C29759 /* LineNumberLayoutManager.m */; };
 		96B023AD198B1D8200C29759 /* LineNumberTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B023AB198B1D8200C29759 /* LineNumberTextView.m */; };
+		96CCBFF6198C13D70005634D /* largeTestSketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96CCBFF5198C13D70005634D /* largeTestSketch.ino */; };
+		96CCBFF7198C13D70005634D /* largeTestSketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96CCBFF5198C13D70005634D /* largeTestSketch.ino */; };
+		96CCBFFB198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */; };
+		96CCBFFC198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */; };
 		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
 		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
@@ -265,6 +269,9 @@
 		96B023A9198B1D8200C29759 /* LineNumberLayoutManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineNumberLayoutManager.m; sourceTree = "<group>"; };
 		96B023AA198B1D8200C29759 /* LineNumberTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineNumberTextView.h; sourceTree = "<group>"; };
 		96B023AB198B1D8200C29759 /* LineNumberTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineNumberTextView.m; sourceTree = "<group>"; };
+		96CCBFF5198C13D70005634D /* largeTestSketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = largeTestSketch.ino; sourceTree = "<group>"; };
+		96CCBFF9198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAttributedString+MyRichTextEditor.h"; sourceTree = "<group>"; };
+		96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAttributedString+MyRichTextEditor.m"; sourceTree = "<group>"; };
 		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
 		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
 		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
@@ -494,6 +501,7 @@
 				158389261735A5D7006DE713 /* Default@2x.png */,
 				158389281735A5D7006DE713 /* Default-568h@2x.png */,
 				96D888611979EE5D0018DA8C /* examplesketch.ino */,
+				96CCBFF5198C13D70005634D /* largeTestSketch.ino */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -546,9 +554,19 @@
 			path = Source/Vendor;
 			sourceTree = "<group>";
 		};
+		96CCBFF8198C34500005634D /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				96CCBFF9198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.h */,
+				96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
 		96E84B70197608B00079964C /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				96CCBFF8198C34500005634D /* Categories */,
 				96E84B7719760E620079964C /* MyRichTextEditorToolbar.h */,
 				96E84B7819760E620079964C /* MyRichTextEditorToolbar.m */,
 				96E84B71197608B00079964C /* MyRichTextEditor.h */,
@@ -673,6 +691,7 @@
 				15C4131817A4444B0073D047 /* email.png in Resources */,
 				15C4131917A4444B0073D047 /* file.png in Resources */,
 				15C4131A17A4444B0073D047 /* forecolor.png in Resources */,
+				96CCBFF6198C13D70005634D /* largeTestSketch.ino in Resources */,
 				15C4131B17A4444B0073D047 /* image.png in Resources */,
 				15C4131C17A4444B0073D047 /* indent.png in Resources */,
 				15C4131D17A4444B0073D047 /* italic.png in Resources */,
@@ -723,6 +742,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96CCBFF7198C13D70005634D /* largeTestSketch.ino in Resources */,
 				158389441735A5D7006DE713 /* InfoPlist.strings in Resources */,
 				96799FBD1989C6760006957A /* keywords.txt in Resources */,
 				96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */,
@@ -758,6 +778,7 @@
 				153F95A4179F9953005B2487 /* RichTextEditorToolbar.m in Sources */,
 				96E84B7919760E620079964C /* MyRichTextEditorToolbar.m in Sources */,
 				96DCE82C1977686A001108B0 /* MyRichTextEditorToggleButton.m in Sources */,
+				96CCBFFB198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */,
 				969DE81219757B970005A2CC /* RichTextEditorLinkPickerViewController.m in Sources */,
 				153F959C179F9953005B2487 /* UIBarButtonItem+WEPopover.m in Sources */,
 				153F95A3179F9953005B2487 /* RichTextEditorFontSizePickerViewController.m in Sources */,
@@ -786,6 +807,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				158389471735A5D7006DE713 /* RichTextEditorTests.m in Sources */,
+				96CCBFFC198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

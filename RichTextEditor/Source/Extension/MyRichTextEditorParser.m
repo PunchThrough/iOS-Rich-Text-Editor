@@ -262,7 +262,7 @@ typedef enum {
                         }
                         segments[segmentKey][@"keywords"] = [@[] mutableCopy];
                     }
-                    [segments[segmentKey][@"keywords"] addObject:@{@"type":@"keyword", @"specifies":keywords[val], @"location":key, @"length":@(val.length)}];
+                    [segments[segmentKey][@"keywords"] addObject:@{@"type":keywords[val], @"location":key, @"length":@(val.length)}];
                 }
                 else if ([self.helper isNumber:val]) {
                     if (!segments[segmentKey][@"numbers"]) {

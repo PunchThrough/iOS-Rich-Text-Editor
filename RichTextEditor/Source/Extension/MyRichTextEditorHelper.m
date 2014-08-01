@@ -14,7 +14,7 @@
 
 @implementation MyRichTextEditorHelper
 
-- (NSDictionary*)tokenForRange:(NSRange)range fromTokens:(NSDictionary*)tokens {
+- (NSDictionary*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)tokens {
     NSUInteger min = NSUIntegerMax;
     NSNumber *keyToken;
     for (NSNumber *key in tokens) {
@@ -44,7 +44,7 @@
     return nil;
 }
 
-- (NSMutableArray*)tokensForRange:(NSRange)wholeRange fromTokens:(NSDictionary*)tokens tokenKeys:(NSArray*)tokenKeys {
+- (NSMutableArray*)segmentsForRange:(NSRange)wholeRange fromSegments:(NSDictionary*)tokens segmentKeys:(NSArray*)tokenKeys {
     NSMutableArray *retArr = nil;
     for (NSNumber *key in tokenKeys) {
         NSDictionary *token = tokens[key];
@@ -123,5 +123,73 @@
     
     return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
 }
+
+- (NSMutableDictionary*)keywordsForPath:(NSString*)filePath {
+    NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
+    NSArray *arr = [myText componentsSeparatedByString:@"\n"];
+    NSMutableDictionary *keywordsDic = [@{} mutableCopy];
+    for (NSString *line in arr) {
+        if ([line hasPrefix:@"#"]) {
+            continue;
+        }
+        
+        NSArray *words = [line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if (words.count >= 2) {
+            if (((NSString*)words[1]).length == 0 && words.count>=3) {
+                keywordsDic[words[0]] = words[2];
+            }
+            else {
+                keywordsDic[words[0]] = words[1];
+            }
+        }
+    }
+    return keywordsDic;
+}
+
+- (NSMutableDictionary*)colorsForPath:(NSString*)filePath {
+    NSMutableDictionary *colorsDic = [@{} mutableCopy];
+    if (filePath) {
+        NSData *data = [NSData dataWithContentsOfFile:filePath];
+        if (!data) {
+            NSLog(@"textColors file not found");
+        }
+        NSError *error;
+        NSDictionary *textColors = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+        if (error)
+            NSLog(@"JSONObjectWithData error: %@", error);
+        NSArray *temp = textColors[@"comments"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            colorsDic[@"comment"] = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"invalid-string"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            colorsDic[@"invalid-string"] = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"string"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            colorsDic[@"string"] = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"keywords"];
+        if (temp) {
+            for (NSDictionary *dic in temp) {
+                for (NSString *key in dic) {
+                    NSArray *val = dic[key];
+                    colorsDic[key] = [UIColor colorWithRed:[val[0] floatValue] green:[val[1] floatValue] blue:[val[2] floatValue] alpha:1];
+                }
+            }
+        }
+    }
+    return colorsDic;
+}
+
 
 @end

@@ -11,7 +11,9 @@
 @interface MyRichTextEditorHelper : NSObject 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen;
 - (BOOL)text:(NSString*)text range:(NSRange)range leftNeighbor:(NSString*)left rightNeighbor:(NSString*)right;
-- (NSDictionary*)tokenForRange:(NSRange)range fromTokens:(NSDictionary*)tokens;
-- (NSMutableArray*)tokensForRange:(NSRange)wholeRange fromTokens:(NSDictionary*)tokens tokenKeys:(NSArray*)tokenKeys;
+- (NSDictionary*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)tokens;
+- (NSMutableArray*)segmentsForRange:(NSRange)wholeRange fromSegments:(NSDictionary*)tokens segmentKeys:(NSArray*)tokenKeys;
 - (BOOL)isNumber:(NSString*)text;
+- (NSMutableDictionary*)keywordsForPath:(NSString*)filePath;
+- (NSMutableDictionary*)colorsForPath:(NSString*)filePath;
 @end
