@@ -288,4 +288,8 @@
     }
 }
 
+- (void)updateToolbarState {
+    
+}
+
 @end
