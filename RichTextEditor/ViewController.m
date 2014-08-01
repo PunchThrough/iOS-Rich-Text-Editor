@@ -11,7 +11,7 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet MyRichTextEditor *myRichTextEditor;
+@property (strong, nonatomic) MyRichTextEditor *myRichTextEditor;
 @end
 
 @implementation ViewController
@@ -22,19 +22,19 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
 
+    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:NO];
+    [self.view addSubview:self.myRichTextEditor];
+    self.myRichTextEditor.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSDictionary *views = @{@"myRichTextEditor":self.myRichTextEditor};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[myRichTextEditor]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[myRichTextEditor]|" options:0 metrics:nil views:views]];
+    
     [self preferredContentSizeChanged];
     
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
-    if (filePath) {
-        NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
-        if (myText) {
-            [self.myRichTextEditor loadWithText:myText];
-        }
-    }
-    
-//    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(100, 100, 100, 100)];
-//    v.backgroundColor = [UIColor redColor];
-//    [self.myRichTextEditor addSubview:v];
+    NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
+    [self.myRichTextEditor loadWithText:myText];    
 }
 
 - (void)preferredContentSizeChanged {

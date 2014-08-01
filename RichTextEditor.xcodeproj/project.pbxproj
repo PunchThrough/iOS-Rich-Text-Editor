@@ -109,6 +109,8 @@
 		969E851319832EC700A04C9C /* text.json in Resources */ = {isa = PBXBuildFile; fileRef = 969E851219832EC700A04C9C /* text.json */; };
 		96A07AEA19844E2F0025561B /* menu~ipad.json in Resources */ = {isa = PBXBuildFile; fileRef = 96A07AE819844E2F0025561B /* menu~ipad.json */; };
 		96A07AEB19844E2F0025561B /* menu~iphone.json in Resources */ = {isa = PBXBuildFile; fileRef = 96A07AE919844E2F0025561B /* menu~iphone.json */; };
+		96B023AC198B1D8200C29759 /* LineNumberLayoutManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B023A9198B1D8200C29759 /* LineNumberLayoutManager.m */; };
+		96B023AD198B1D8200C29759 /* LineNumberTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 96B023AB198B1D8200C29759 /* LineNumberTextView.m */; };
 		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
 		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
@@ -259,6 +261,10 @@
 		969E851219832EC700A04C9C /* text.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = text.json; sourceTree = "<group>"; };
 		96A07AE819844E2F0025561B /* menu~ipad.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "menu~ipad.json"; sourceTree = "<group>"; };
 		96A07AE919844E2F0025561B /* menu~iphone.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "menu~iphone.json"; sourceTree = "<group>"; };
+		96B023A8198B1D8200C29759 /* LineNumberLayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineNumberLayoutManager.h; sourceTree = "<group>"; };
+		96B023A9198B1D8200C29759 /* LineNumberLayoutManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineNumberLayoutManager.m; sourceTree = "<group>"; };
+		96B023AA198B1D8200C29759 /* LineNumberTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineNumberTextView.h; sourceTree = "<group>"; };
+		96B023AB198B1D8200C29759 /* LineNumberTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineNumberTextView.m; sourceTree = "<group>"; };
 		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
 		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
 		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
@@ -458,6 +464,7 @@
 		158389181735A5D7006DE713 /* RichTextEditor */ = {
 			isa = PBXGroup;
 			children = (
+				96B023A7198B1D8200C29759 /* Vendor */,
 				96E84B70197608B00079964C /* Extension */,
 				153F9554179F9953005B2487 /* Source */,
 				158389211735A5D7006DE713 /* AppDelegate.h */,
@@ -525,6 +532,18 @@
 				1AFAED8817C80FC600E450B0 /* dropDownTriangle@2x.png */,
 			);
 			path = buttons;
+			sourceTree = "<group>";
+		};
+		96B023A7198B1D8200C29759 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				96B023A8198B1D8200C29759 /* LineNumberLayoutManager.h */,
+				96B023A9198B1D8200C29759 /* LineNumberLayoutManager.m */,
+				96B023AA198B1D8200C29759 /* LineNumberTextView.h */,
+				96B023AB198B1D8200C29759 /* LineNumberTextView.m */,
+			);
+			name = Vendor;
+			path = Source/Vendor;
 			sourceTree = "<group>";
 		};
 		96E84B70197608B00079964C /* Extension */ = {
@@ -748,6 +767,7 @@
 				153F95A2179F9953005B2487 /* RichTextEditorFontPickerViewController.m in Sources */,
 				96E84B75197608B00079964C /* MyRichTextEditor.m in Sources */,
 				96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */,
+				96B023AC198B1D8200C29759 /* LineNumberLayoutManager.m in Sources */,
 				153F95A0179F9953005B2487 /* RichTextEditor.m in Sources */,
 				153F958C179F9953005B2487 /* UIView+RichTextEditor.m in Sources */,
 				153F959F179F9953005B2487 /* WETouchableView.m in Sources */,
@@ -756,6 +776,7 @@
 				153F95A1179F9953005B2487 /* RichTextEditorColorPickerViewController.m in Sources */,
 				153F958A179F9953005B2487 /* NSAttributedString+RichTextEditor.m in Sources */,
 				96097EC919789B7400BE0230 /* MyNavViewController.m in Sources */,
+				96B023AD198B1D8200C29759 /* LineNumberTextView.m in Sources */,
 				15B6E20F17A4C2820015867C /* RichTextEditorToggleButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

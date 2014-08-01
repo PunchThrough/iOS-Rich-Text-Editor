@@ -11,6 +11,7 @@
 #import "MyRichTextEditorToolbar.h"
 #import "MyRichTextEditorHelper.h"
 #import "MyRichTextEditorParser.h"
+#import "LineNumberLayoutManager.h"
 
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource, UITextViewDelegate>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
@@ -22,17 +23,51 @@
 @property (nonatomic, strong) NSMutableDictionary *keywordsDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordColorsDic;
 @property (nonatomic, strong) NSMutableArray *lines;
+@property (nonatomic, readwrite) NSUInteger lineNumberGutterWidth;
 @end
 
 @implementation MyRichTextEditor
 
-// override in use custom toolbar
-- (void)initializeToolbar
+- (id)initWithLineNumbers:(BOOL)lineNumbers
 {
-	self.toolBar = [[MyRichTextEditorToolbar alloc] initWithFrame:CGRectMake(0, 0, [self currentScreenBoundsDependOnOrientation].size.width, RICHTEXTEDITOR_TOOLBAR_HEIGHT)
-													   delegate:self
-													 dataSource:self];
+    // block copied from https://github.com/alldritt/TextKit_LineNumbers/blob/master/TextKit_LineNumbers/LineNumberTextView.m
+    if (lineNumbers) {
+        NSTextStorage* ts = [[NSTextStorage alloc] init];
+        LineNumberLayoutManager* lm = [[LineNumberLayoutManager alloc] init];
+        NSTextContainer* tc = [[NSTextContainer alloc] initWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
+        
+        //  Wrap text to the text view's frame
+        tc.widthTracksTextView = YES;
+        
+        //  Exclude the line number gutter from the display area available for text display.
+        tc.exclusionPaths = @[[UIBezierPath bezierPathWithRect:CGRectMake(0.0, 0.0, 40.0, CGFLOAT_MAX)]];
+        
+        [lm addTextContainer:tc];
+        [ts addLayoutManager:lm];
 
+        self.lineNumberGutterWidth = 40;
+        
+        if ((self = [super initWithFrame:CGRectZero textContainer:tc])) {
+            self.contentMode = UIViewContentModeRedraw; // cause drawRect: to be called on frame resizing and divice rotation
+            [self commonInitialization];
+        }
+    }
+    else {
+        self = [super initWithFrame:CGRectZero];
+    }
+
+    return self;
+}
+
+- (void)commonInitialization
+{
+    self.borderColor = [UIColor lightGrayColor];
+    self.borderWidth = 1.0;
+    
+	self.toolBar = [[MyRichTextEditorToolbar alloc] initWithFrame:CGRectMake(0, 0, [self currentScreenBoundsDependOnOrientation].size.width, RICHTEXTEDITOR_TOOLBAR_HEIGHT)
+                                                         delegate:self
+                                                       dataSource:self];
+    
     self.autocorrectionType = UITextAutocorrectionTypeNo;
     self.autocapitalizationType = UITextAutocapitalizationTypeNone;
     self.spellCheckingType = UITextSpellCheckingTypeNo;
@@ -40,7 +75,7 @@
     self.helper = [[MyRichTextEditorHelper alloc] init];
     self.parser = [[MyRichTextEditorParser alloc] init];
     self.delegate = self;
-
+    
     self.indentation = @"    ";
     
     self.segments = [@{} mutableCopy];
@@ -85,7 +120,7 @@
             }
         }
     }
-
+    
     filePath = [[NSBundle mainBundle] pathForResource:@"textColors" ofType:@"json"];
     if (filePath) {
         NSData *data = [NSData dataWithContentsOfFile:filePath];
@@ -128,11 +163,6 @@
             }
         }
     }
-}
-
-// override in use custom menu items (in addition to cut, copy, paste, ..)
-- (void)setupMenuItems
-{
 }
 
 #pragma mark UITextViewDelegate
@@ -342,6 +372,27 @@
     NSMutableArray *arr = [@[] mutableCopy];
     [self.parser parseLineNumText:self.text lines:arr textView:self];
     
+}
+
+- (void) drawRect:(CGRect)rect {
+    
+    if (self.lineNumberGutterWidth == 0) {
+        [super drawRect:rect];
+    }
+    else {
+        //  Drag the line number gutter background.  The line numbers them selves are drawn by LineNumberLayoutManager.
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        CGRect bounds = self.bounds;
+        
+        CGContextSetFillColorWithColor(context, [UIColor grayColor].CGColor);
+        CGContextFillRect(context, CGRectMake(bounds.origin.x, bounds.origin.y, self.lineNumberGutterWidth, bounds.size.height));
+        
+        CGContextSetStrokeColorWithColor(context, [UIColor darkGrayColor].CGColor);
+        CGContextSetLineWidth(context, 0.5);
+        CGContextStrokeRect(context, CGRectMake(bounds.origin.x + 39.5, bounds.origin.y, 0.5, CGRectGetHeight(bounds)));
+        
+        [super drawRect:rect];
+    }
 }
 
 @end

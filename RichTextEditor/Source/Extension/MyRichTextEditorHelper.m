@@ -124,25 +124,4 @@
     return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
 }
 
-
-// based on http://stackoverflow.com/questions/50467/how-do-i-size-a-uitextview-to-its-content
-// seen issue http://www.raywenderlich.com/forums/viewtopic.php?f=21&t=9101
-
-- (NSUInteger)viewHeightForText:(NSString*)text textView:(UITextView*)textView {
-    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-
-    NSDictionary *attrsDictionary = @{NSParagraphStyleAttributeName: paragraphStyle, NSFontAttributeName:textView.font};
-    NSAttributedString *str = [[NSAttributedString alloc] initWithString:text attributes:attrsDictionary];
-    CGRect frame = [str boundingRectWithSize:CGSizeMake(/*textView.frame.size.width*/320, INT_MAX) options:nil context:nil];
-    return frame.size.height;
-    
-//    if (!self.tempTextView || self.tempTextView.frame.size.width != width) {
-//        self.tempTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, width, 1000)];
-//    }
-//    self.tempTextView.text = text;
-//    CGSize sizeThatShouldFitTheContent = [self.tempTextView sizeThatFits:self.tempTextView.frame.size];
-//    return sizeThatShouldFitTheContent.height;
-}
-
 @end
