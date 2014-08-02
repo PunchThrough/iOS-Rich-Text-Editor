@@ -14,7 +14,7 @@
 #import "LineNumberLayoutManager.h"
 #import "NSAttributedString+MyRichTextEditor.h"
 
-@interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource, UITextViewDelegate>
+@interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @property (nonatomic, strong) MyRichTextEditorParser *parser;
 @property (nonatomic, strong) NSMutableDictionary *segments;

@@ -82,6 +82,8 @@
 
 // returns a dic keyed by the location with a value of the string
 
+static NSMutableDictionary *occuranceRegexDic;
+
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen {
     NSError *error=NULL;
     NSMutableArray *temp = [@[] mutableCopy];
@@ -97,9 +99,17 @@
         pattern = [NSString stringWithFormat:@"%@", [temp componentsJoinedByString:@"|"]];
     }
     
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:nil error:&error];
-    if (error) {
-        NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+    if (!occuranceRegexDic) {
+        occuranceRegexDic = [@{} mutableCopy];
+    }
+    
+    NSRegularExpression *regex = occuranceRegexDic[pattern];
+    if (!regex) {
+        regex = [NSRegularExpression regularExpressionWithPattern:pattern options:nil error:&error];
+        if (error) {
+            NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+        }
+        occuranceRegexDic[pattern] = regex;
     }
     
     NSArray *matches = [regex matchesInString:text options:0 range:NSMakeRange(0, text.length)];
@@ -117,19 +127,23 @@
 
 // utility to determine if the text is a number
 
+static NSRegularExpression *numberRegex;
+
 - (BOOL)isNumber:(NSString*)text {
     
     if (text == nil || text.length == 0) {
         return NO;
     }
-    NSError *error=NULL;
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d(x|b)?\\d*" options:nil error:&error];
-    if (error) {
-        NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+    if (!numberRegex) {
+        NSError *error=NULL;
+        numberRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d(x|b)?\\d*" options:nil error:&error];
+        if (error) {
+            NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
+        }
     }
     
     NSRange textRange = NSMakeRange(0, text.length);
-    NSRange matchRange = [regex rangeOfFirstMatchInString:text options:NSMatchingReportCompletion range:textRange];
+    NSRange matchRange = [numberRegex rangeOfFirstMatchInString:text options:NSMatchingReportCompletion range:textRange];
     
     return (matchRange.location != NSNotFound && matchRange.length == textRange.length);
 }

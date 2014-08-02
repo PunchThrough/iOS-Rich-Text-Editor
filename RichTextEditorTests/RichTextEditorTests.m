@@ -53,8 +53,6 @@
     XCTAssertTrue([dic allKeys].count == 419, @"");
 }
 
-// executes in .274
-
 - (void)testBuildAttrString
 {
     MyRichTextEditorParser *parser = [[MyRichTextEditorParser alloc] init];
@@ -66,6 +64,13 @@
     [attr applySegments:[segments allValues] colorsDic:self.colorsDic];
     NSString *result = [attr description];
     XCTAssertEqualObjects(result, self.largeSketchTestString, @"");
+}
+
+- (void)testTextView
+{
+    MyRichTextEditor *editor = editor = [[MyRichTextEditor alloc] initWithLineNumbers:YES];
+    [editor textView:editor shouldChangeTextInRange:NSMakeRange(0, 0) replacementText:@""];
+    
 }
 
 

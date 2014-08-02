@@ -129,4 +129,9 @@
     return YES;
 }
 
+- (void)redraw
+{
+}
+
+
 @end
