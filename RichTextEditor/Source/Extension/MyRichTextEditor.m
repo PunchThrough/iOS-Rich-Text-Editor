@@ -196,7 +196,6 @@
     NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
     [attrString applySegments:segments colorsDic:self.colorsDic];
     [self setAttributedText:attrString];
-    self.scrollEnabled = YES;
     t = [[NSDate date] timeIntervalSinceDate:date];
     NSLog(@"attr strings %f",t);
 
@@ -215,6 +214,7 @@
     else {
         textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
     }
+    self.scrollEnabled = YES;
     
     return NO;
 }

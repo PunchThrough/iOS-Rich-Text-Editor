@@ -115,6 +115,9 @@
 		96CCBFF7198C13D70005634D /* largeTestSketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96CCBFF5198C13D70005634D /* largeTestSketch.ino */; };
 		96CCBFFB198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */; };
 		96CCBFFC198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */; };
+		96CCBFFD198C659B0005634D /* textColors.json in Resources */ = {isa = PBXBuildFile; fileRef = 96799FBE1989CBE30006957A /* textColors.json */; };
+		96CCBFFF198C67140005634D /* largeTextSketchTest.txt in Resources */ = {isa = PBXBuildFile; fileRef = 96CCBFFE198C67140005634D /* largeTextSketchTest.txt */; };
+		96CCC000198C67140005634D /* largeTextSketchTest.txt in Resources */ = {isa = PBXBuildFile; fileRef = 96CCBFFE198C67140005634D /* largeTextSketchTest.txt */; };
 		96D8885E1979BFE30018DA8C /* MyRichTextEditorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */; };
 		96D888621979EE5D0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
 		96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */ = {isa = PBXBuildFile; fileRef = 96D888611979EE5D0018DA8C /* examplesketch.ino */; };
@@ -272,6 +275,7 @@
 		96CCBFF5198C13D70005634D /* largeTestSketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = largeTestSketch.ino; sourceTree = "<group>"; };
 		96CCBFF9198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAttributedString+MyRichTextEditor.h"; sourceTree = "<group>"; };
 		96CCBFFA198C3D2A0005634D /* NSAttributedString+MyRichTextEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAttributedString+MyRichTextEditor.m"; sourceTree = "<group>"; };
+		96CCBFFE198C67140005634D /* largeTextSketchTest.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = largeTextSketchTest.txt; sourceTree = "<group>"; };
 		96D8885C1979BFE30018DA8C /* MyRichTextEditorHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRichTextEditorHelper.h; sourceTree = "<group>"; };
 		96D8885D1979BFE30018DA8C /* MyRichTextEditorHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRichTextEditorHelper.m; sourceTree = "<group>"; };
 		96D888611979EE5D0018DA8C /* examplesketch.ino */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = examplesketch.ino; sourceTree = "<group>"; };
@@ -502,6 +506,7 @@
 				158389281735A5D7006DE713 /* Default-568h@2x.png */,
 				96D888611979EE5D0018DA8C /* examplesketch.ino */,
 				96CCBFF5198C13D70005634D /* largeTestSketch.ino */,
+				96CCBFFE198C67140005634D /* largeTextSketchTest.txt */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -729,6 +734,7 @@
 				1AFAED7C17C8022000E450B0 /* justifyright@2x.png in Resources */,
 				96A07AEB19844E2F0025561B /* menu~iphone.json in Resources */,
 				1AFAED7D17C8022000E450B0 /* justifycenter@2x.png in Resources */,
+				96CCBFFF198C67140005634D /* largeTextSketchTest.txt in Resources */,
 				1AFAED8017C802B200E450B0 /* indent@2x.png in Resources */,
 				1AFAED8117C802B200E450B0 /* outdent@2x.png in Resources */,
 				15BFE3E917E4CFE700D89153 /* firstLineIndent.png in Resources */,
@@ -745,6 +751,8 @@
 				96CCBFF7198C13D70005634D /* largeTestSketch.ino in Resources */,
 				158389441735A5D7006DE713 /* InfoPlist.strings in Resources */,
 				96799FBD1989C6760006957A /* keywords.txt in Resources */,
+				96CCC000198C67140005634D /* largeTextSketchTest.txt in Resources */,
+				96CCBFFD198C659B0005634D /* textColors.json in Resources */,
 				96D888631979EE5E0018DA8C /* examplesketch.ino in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
