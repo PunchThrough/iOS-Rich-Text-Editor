@@ -11,7 +11,7 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-@property (strong, nonatomic) MyRichTextEditor *myRichTextEditor;
+@property (strong, nonatomic) UITextView *myRichTextEditor;
 @end
 
 @implementation ViewController
@@ -22,7 +22,8 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferredContentSizeChanged) name:UIContentSizeCategoryDidChangeNotification object:nil];
 
-    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:YES];
+    self.myRichTextEditor = [[UITextView alloc] init];
+//    self.myRichTextEditor = [[MyRichTextEditor alloc] initWithLineNumbers:YES];
     self.myRichTextEditor.translatesAutoresizingMaskIntoConstraints = NO;
 
     [self.view addSubview:self.myRichTextEditor];
@@ -35,7 +36,8 @@
     
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
     NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
-    [self.myRichTextEditor loadWithText:myText];    
+//    [self.myRichTextEditor loadWithText:myText];
+    self.myRichTextEditor.text = myText;
 }
 
 - (void)preferredContentSizeChanged {
