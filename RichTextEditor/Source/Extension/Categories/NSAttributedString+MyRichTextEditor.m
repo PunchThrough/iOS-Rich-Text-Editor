@@ -48,8 +48,12 @@
 
 - (void)applyAttributes:(id)attribute forKey:(NSString *)key atRange:(NSRange)range {
 	if (range.length > 0) {
+
+//        NSRange rangePtr;
+//        NSDictionary *attr1 = [self attributesAtIndex:range.location effectiveRange:&rangePtr];
+//        
         [self addAttributes:[NSDictionary dictionaryWithObject:attribute forKey:key] range:range];
-	}
+    }
 }
 
 - (void)removeAttributeForKey:(NSString *)key atRange:(NSRange)range attrString:(NSMutableAttributedString*)attrString {

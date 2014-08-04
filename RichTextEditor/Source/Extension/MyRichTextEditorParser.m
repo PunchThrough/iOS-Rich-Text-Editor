@@ -51,8 +51,6 @@ typedef enum {
     [segments addEntriesFromDictionary:otherSegments];
     NSArray *sortedKeys = [[[segments allKeys] sortedArrayUsingSelector: @selector(compare:)] mutableCopy];
     [segmentKeys addObjectsFromArray:sortedKeys];
-    
-    
 }
 
 - (void)parseStringCommentsText:(NSString*)text segments:(NSMutableDictionary*)segments {
@@ -190,7 +188,7 @@ typedef enum {
         if (i == sortedKeys.count-1) {
             NSNumber *key = sortedKeys[i];
             NSDictionary *segment = segments[key];
-            // case where /* comment */ code EOF
+            // case where /* comment segment */ otherSegment EOF
             if ([segment[@"location"] integerValue]+[segment[@"length"] integerValue] < (text.length)) {
                 NSUInteger location = [segment[@"location"] integerValue] + [segment[@"length"] integerValue];
                 NSUInteger length = (text.length)-location;
@@ -201,8 +199,8 @@ typedef enum {
                     otherSegments[@(location)] = @{@"type":@"code", @"location":@(location), @"length":@(length)};
                 }
             }
-            // case where /* comment */ EOF
-            else if (i>0) {
+            // case where code (firstSegment) /* comment segment (secondSegment) */ EOF
+            if (i>0) {
                 NSNumber *secondKey = sortedKeys[i];
                 NSDictionary *secondSegment = segments[secondKey];
                 NSNumber *firstKey = sortedKeys[i-1];
