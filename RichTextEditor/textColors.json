@@ -9,5 +9,6 @@
     ],
     "comments":[0.3,0.3,0.3],
     "string":[0,0.6,0.6],
-    "invalid-string":[0.6,0.6,0]
+    "invalid-string":[0.6,0.6,0],
+    "number":[0.0,0.6,0.6],
 }

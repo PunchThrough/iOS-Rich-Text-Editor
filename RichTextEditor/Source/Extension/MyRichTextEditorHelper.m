@@ -13,34 +13,42 @@
 
 @implementation MyRichTextEditorHelper
 
+- (id)init {
+    self = [super init];
+    if (self) {
+        self.sortDesc = [NSSortDescriptor sortDescriptorWithKey:@"location" ascending:YES];
+    }
+    return self;
+}
+
 // returns a segment that is in the location of the passed in range
 
-- (NSDictionary*)segmentForRange:(NSRange)range fromSegments:(NSDictionary*)segments {
+- (NSDictionary*)segmentForRange:(NSRange)range fromSegments:(NSMutableArray*)segments {
     NSUInteger min = NSUIntegerMax;
-    NSNumber *segmentKey;
-    for (NSNumber *key in segments) {
-        int diff = abs((int)[key unsignedIntegerValue] - (int)range.location);
-        if (([key integerValue] <= range.location) && (diff <= min)) {
+    NSMutableDictionary *foundSegment;
+    for (NSMutableDictionary *segment in segments) {
+        int location = [segment[@"location"] integerValue];
+        int diff = abs(location - (int)range.location);
+        if ((location <= range.location) && (diff <= min)) {
             min = diff;
-            segmentKey = key;
+            foundSegment = segment;
         }
     }
     // get the intersection of ranges between the range input and the range of the segment
     // we just found
-    if (segmentKey) {
-        NSDictionary *segment = segments[segmentKey];
-        NSUInteger location = [segment[@"location"] integerValue];
-        NSUInteger length = [segment[@"length"] integerValue];
+    if (foundSegment) {
+        NSUInteger location = [foundSegment[@"location"] integerValue];
+        NSUInteger length = [foundSegment[@"length"] integerValue];
         // handles case where NSIntersectionRange returns false positive
         if (range.location == 0 && range.length == 0) {
             if (location == 0) {
-                return segment;
+                return foundSegment;
             }
         }
         else {
             NSRange intersectionRange = NSIntersectionRange(range, NSMakeRange(location, length));
             if (intersectionRange.length != 0 || intersectionRange.location != 0) {
-                return segment;
+                return foundSegment;
             }
         }
     }
@@ -49,10 +57,9 @@
 
 // returns the segments that are within the range
 
-- (NSMutableArray*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)segments segmentKeys:(NSArray*)segmentKeys {
+- (NSMutableArray*)segmentsForRange:(NSRange)range fromSegments:(NSMutableArray*)segments {
     NSMutableArray *retArr = nil;
-    for (NSNumber *key in segmentKeys) {
-        NSDictionary *segment = segments[key];
+    for (NSDictionary *segment in segments) {
         NSRange segmentRange = NSMakeRange([segment[@"location"] integerValue], [segment[@"length"] integerValue]);
         NSRange intersectionRange = NSIntersectionRange(range, segmentRange);
         if (intersectionRange.length!= 0 || intersectionRange.location != 0) {
@@ -136,7 +143,7 @@ static NSRegularExpression *numberRegex;
     }
     if (!numberRegex) {
         NSError *error=NULL;
-        numberRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d(x|b)?\\d*" options:nil error:&error];
+        numberRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d(x|b)?[0-9a-fA-F]*" options:nil error:&error];
         if (error) {
             NSLog(@"Couldn't create regex with given string and options %@", [error localizedDescription]);
         }
@@ -207,6 +214,13 @@ static NSRegularExpression *numberRegex;
             float green = [temp[1] floatValue];
             float blue = [temp[2] floatValue];
             colorsDic[@"string"] = [UIColor colorWithRed:red green:green blue:blue alpha:1];
+        }
+        temp = textColors[@"number"];
+        if (temp && temp.count == 3) {
+            float red = [temp[0] floatValue];
+            float green = [temp[1] floatValue];
+            float blue = [temp[2] floatValue];
+            colorsDic[@"number"] = [UIColor colorWithRed:red green:green blue:blue alpha:1];
         }
         temp = textColors[@"keywords"];
         if (temp) {

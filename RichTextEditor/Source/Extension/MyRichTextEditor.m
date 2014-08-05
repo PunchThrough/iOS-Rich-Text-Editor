@@ -17,14 +17,15 @@
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @property (nonatomic, strong) MyRichTextEditorParser *parser;
-@property (nonatomic, strong) NSMutableDictionary *segments;
-@property (nonatomic, strong) NSMutableArray *segmentKeys;
+@property (nonatomic, strong) NSMutableArray *segments;
 @property (nonatomic, strong) NSMutableDictionary *textReplaceDic;
 @property (nonatomic, strong) NSMutableDictionary *keywordsDic;
 @property (nonatomic, strong) NSMutableDictionary *colorsDic;
 @property (nonatomic, strong) NSMutableArray *lines;
 @property (nonatomic, readwrite) NSUInteger lineNumberGutterWidth;
 @end
+
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
 @implementation MyRichTextEditor
 
@@ -78,8 +79,7 @@
     
     self.indentation = @"    ";
     
-    self.segments = [@{} mutableCopy];
-    self.segmentKeys = [@[] mutableCopy];
+    self.segments = [@[] mutableCopy];
     self.lines = [@[] mutableCopy];
     
     [self observeKeyboard];
@@ -107,7 +107,7 @@
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     NSRange selectedRange = textView.selectedRange;
-
+    NSMutableString *insertedText = [[NSMutableString alloc] init];
     // old range used to calculate how much text we need to process
     NSDictionary *oldSegment = [self.helper segmentForRange:range fromSegments:self.segments];
     NSRange oldRange = NSMakeRange([oldSegment[@"location"] integerValue], [oldSegment[@"length"] integerValue]);
@@ -128,23 +128,21 @@
         BOOL inBrackets = [self.helper text:textView.text range:range leftNeighbor:@"{" rightNeighbor:@"}"];
         textView.selectedRange = range;
         
-        [textView insertText:@"\n"];
-        
+        [insertedText appendString:@"\n"];
         for (int i=0; i<indentationCt; i++) {
-            [textView insertText:self.indentation];
+            [insertedText appendString:self.indentation];
         }
         
         if (inBrackets) {
-            [textView insertText:@"\n"];
+            [insertedText appendString:@"\n"];
             for (int i=0; i<indentationCt-1; i++) {
-                [textView insertText:self.indentation];
+                [insertedText appendString:self.indentation];
             }
             NSRange range = textView.selectedRange;
-            range.location -= (1 + self.indentation.length*(indentationCt-1));
-            selectedRange = range;
+            selectedRange.location = range.location + insertedText.length - 1;
         }
         else {
-            selectedRange = textView.selectedRange;
+            selectedRange.location = range.location + insertedText.length;
         }
     }
     // anything else entered
@@ -153,26 +151,28 @@
         if (text.length == 1) {
             NSDictionary *dic = [self.textReplaceDic objectForKey:text];
                 if (dic) {
-                    [textView insertText:dic[@"value"]];
+                    [insertedText appendString:dic[@"value"]];
                 }
                 else {
-                    [textView insertText:text];
+                    [insertedText appendString:text];
                 }
         }
         else {
-            [textView insertText:text];                
+            [insertedText appendString:text];
         }
     }
+    [textView insertText:insertedText];
     
     NSDate *date = [NSDate date];
-    [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
+    [self.parser parseText:self.text segment:self.segments keywords:self.keywordsDic];
+    self.segments = [[self.segments sortedArrayUsingDescriptors:@[self.helper.sortDesc]] mutableCopy];
+
     NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
     NSLog(@"parse %f",t);
     
     NSDictionary *newSegment = [self.helper segmentForRange:range fromSegments:self.segments];
     NSRange newRange = NSMakeRange([newSegment[@"location"] integerValue], [newSegment[@"length"] integerValue]);
         
-    // apply all tokens
     NSRange bothRanges;
     if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
         bothRanges = NSUnionRange(oldRange, newRange);
@@ -189,13 +189,26 @@
 
     date = [NSDate date];
 
-    NSArray *segments = [self.helper segmentsForRange:bothRanges fromSegments:self.segments segmentKeys:self.segmentKeys];
+    t = [[NSDate date] timeIntervalSinceDate:date];
+    NSArray *segments = [self.helper segmentsForRange:bothRanges fromSegments:self.segments];
+    NSLog(@"segments %f",t);
 
-    // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
-    self.scrollEnabled = NO;
+    t = [[NSDate date] timeIntervalSinceDate:date];
+
     NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
     [attrString applySegments:segments colorsDic:self.colorsDic];
+    
+    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+        // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+        self.scrollEnabled = NO;
+    }
+    
     [self setAttributedText:attrString];
+    
+    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+        self.scrollEnabled = YES;
+    }
+    
     t = [[NSDate date] timeIntervalSinceDate:date];
     NSLog(@"attr strings %f",t);
 
@@ -214,7 +227,6 @@
     else {
         textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
     }
-    self.scrollEnabled = YES;
     
     return NO;
 }
@@ -258,16 +270,18 @@
 
 - (void)loadWithText:(NSString *)text
 {
+    // newline at end of file causes UITextView to hang
+    text = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     self.text = text;
-    [self.parser parseText:self.text segment:self.segments segmentKeys:self.segmentKeys keywords:self.keywordsDic];
-    [self removeAttributeForKey:NSForegroundColorAttributeName atRange:NSMakeRange(0, self.text.length)];
-    
+    [self.parser parseText:self.text segment:self.segments keywords:self.keywordsDic];
+    self.segments = [[self.segments sortedArrayUsingDescriptors:@[self.helper.sortDesc]] mutableCopy];
+
     NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
-    [attrString applySegments:[self.segments allValues] colorsDic:self.colorsDic];
+    [attrString applySegments:self.segments colorsDic:self.colorsDic];
     [self setAttributedText:attrString];
 }
 
-- (void) drawRect:(CGRect)rect {
+- (void)drawRect:(CGRect)rect {
     
     if (self.lineNumberGutterWidth == 0) {
         [super drawRect:rect];

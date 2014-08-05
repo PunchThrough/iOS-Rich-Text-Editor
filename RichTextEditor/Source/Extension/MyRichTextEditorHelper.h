@@ -11,9 +11,12 @@
 @interface MyRichTextEditorHelper : NSObject 
 - (NSMutableDictionary*)occurancesOfString:(NSArray*)strArray text:(NSString*)text addCaptureParen:(BOOL)addParen;
 - (BOOL)text:(NSString*)text range:(NSRange)range leftNeighbor:(NSString*)left rightNeighbor:(NSString*)right;
-- (NSDictionary*)segmentForRange:(NSRange)range fromSegments:(NSDictionary*)segments;
-- (NSMutableArray*)segmentsForRange:(NSRange)range fromSegments:(NSDictionary*)segments segmentKeys:(NSArray*)segmentKeys;
+- (NSDictionary*)segmentForRange:(NSRange)range fromSegments:(NSMutableArray*)segments;
+- (NSMutableArray*)segmentsForRange:(NSRange)range fromSegments:(NSMutableArray*)segments;
 - (BOOL)isNumber:(NSString*)text;
 - (NSMutableDictionary*)keywordsForPath:(NSString*)filePath;
 - (NSMutableDictionary*)colorsForPath:(NSString*)filePath;
+
+@property (nonatomic, strong) NSSortDescriptor *sortDesc;
+
 @end

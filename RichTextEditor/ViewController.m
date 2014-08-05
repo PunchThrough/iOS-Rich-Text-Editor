@@ -34,6 +34,7 @@
     [self preferredContentSizeChanged];
     
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"examplesketch" ofType:@"ino"];
+//    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"largeTestSketch" ofType:@"ino"];
     NSString *myText = [NSString stringWithContentsOfFile:filePath encoding:NSStringEncodingConversionAllowLossy error:nil];
     [self.myRichTextEditor loadWithText:myText];    
 }
