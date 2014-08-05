@@ -66,7 +66,8 @@ typedef enum {
 - (void)parseStringCommentsText:(NSString*)text segments:(NSMutableArray*)segments {
     NSMutableDictionary *symbolsDic = [self.helper occurancesOfString:@[@"\\/\\/",@"\\/\\*",@"\\*\\/",@"\n",@"(.?)\"",@"(.?)'"] text:text addCaptureParen:YES];
     
-    for (NSNumber *num in [symbolsDic copy]) {        NSString *val = symbolsDic[num];
+    for (NSNumber *num in [symbolsDic copy]) {
+        NSString *val = symbolsDic[num];
         if (val.length==2 && ([val hasSuffix:@"\'"] || [val hasSuffix:@"\""])) {
             [symbolsDic removeObjectForKey:num];
             if ([val isEqualToString:@"\\\""]) {

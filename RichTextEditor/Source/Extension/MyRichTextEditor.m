@@ -185,6 +185,7 @@
     }
     else {
         // should never get here
+        NSAssert(NO, @"");
     }
 
     date = [NSDate date];
@@ -195,19 +196,15 @@
 
     t = [[NSDate date] timeIntervalSinceDate:date];
 
-    NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
-    [attrString applySegments:segments colorsDic:self.colorsDic];
-    
+    // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
     if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-        // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
         self.scrollEnabled = NO;
     }
     
-    [self setAttributedText:attrString];
+    NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
+    [attrString applySegments:segments colorsDic:self.colorsDic];
     
-    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-        self.scrollEnabled = YES;
-    }
+    [self setAttributedText:attrString];
     
     t = [[NSDate date] timeIntervalSinceDate:date];
     NSLog(@"attr strings %f",t);
@@ -226,6 +223,10 @@
     }
     else {
         textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
+    }
+    
+    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+        self.scrollEnabled = YES;
     }
     
     return NO;

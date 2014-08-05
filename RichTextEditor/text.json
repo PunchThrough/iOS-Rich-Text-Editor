@@ -1,17 +1,14 @@
  [
   {
   "text":"[",
-  "value":"[]",
-  "offset":1
+  "value":"[]"
   },
   {
   "text":"{",
-  "value":"{}",
-  "offset":1
+  "value":"{}"
   },
   {
   "text":"(",
-  "value":"()",
-  "offset":1
+  "value":"()"
   }
 ]
