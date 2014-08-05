@@ -14,6 +14,9 @@
 #import "LineNumberLayoutManager.h"
 #import "NSAttributedString+MyRichTextEditor.h"
 
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+typedef void (^ParsingCompletion)(long seqNum, NSMutableArray *segments, NSRange range);
+
 @interface MyRichTextEditor() <MyRichTextEditorToolbarDataSource>
 @property (nonatomic, strong) MyRichTextEditorHelper *helper;
 @property (nonatomic, strong) MyRichTextEditorParser *parser;
@@ -23,9 +26,9 @@
 @property (nonatomic, strong) NSMutableDictionary *colorsDic;
 @property (nonatomic, strong) NSMutableArray *lines;
 @property (nonatomic, readwrite) NSUInteger lineNumberGutterWidth;
+@property (nonatomic, readwrite) long charTypedSeqNum;
+@property (nonatomic, copy) ParsingCompletion completionHandler;
 @end
-
-#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
 @implementation MyRichTextEditor
 
@@ -56,6 +59,33 @@
     else {
         self = [super initWithFrame:CGRectZero];
     }
+    
+    __weak MyRichTextEditor *weakSelf = self;
+    self.completionHandler = ^(long seqNum, NSMutableArray *segments, NSRange range) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            if (seqNum == weakSelf.charTypedSeqNum) {
+                weakSelf.segments = segments;
+                NSRange r = weakSelf.selectedRange;
+                // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
+                if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+                    weakSelf.scrollEnabled = NO;
+                }
+                
+                NSMutableAttributedString *attrString = [weakSelf.attributedText mutableCopy];
+                [attrString applySegments:segments colorsDic:weakSelf.colorsDic];
+                
+                [weakSelf setAttributedText:attrString];
+                weakSelf.selectedRange = r;
+                
+                if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+                    weakSelf.scrollEnabled = YES;
+                }
+            }
+            else {
+                NSLog(@"results thrown away");
+            }
+        });
+    };
 
     return self;
 }
@@ -105,7 +135,7 @@
 #pragma mark UITextViewDelegate
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    
+    self.charTypedSeqNum++;
     NSRange selectedRange = textView.selectedRange;
     NSMutableString *insertedText = [[NSMutableString alloc] init];
     // old range used to calculate how much text we need to process
@@ -139,7 +169,7 @@
                 [insertedText appendString:self.indentation];
             }
             NSRange range = textView.selectedRange;
-            selectedRange.location = range.location + insertedText.length - 1;
+            selectedRange.location = range.location + insertedText.length - self.indentation.length*(indentationCt-1)-1;
         }
         else {
             selectedRange.location = range.location + insertedText.length;
@@ -163,51 +193,38 @@
     }
     [textView insertText:insertedText];
     
-    NSDate *date = [NSDate date];
-    [self.parser parseText:self.text segment:self.segments keywords:self.keywordsDic];
-    self.segments = [[self.segments sortedArrayUsingDescriptors:@[self.helper.sortDesc]] mutableCopy];
-
-    NSTimeInterval t = [[NSDate date] timeIntervalSinceDate:date];
-    NSLog(@"parse %f",t);
-    
-    NSDictionary *newSegment = [self.helper segmentForRange:range fromSegments:self.segments];
-    NSRange newRange = NSMakeRange([newSegment[@"location"] integerValue], [newSegment[@"length"] integerValue]);
+    __weak MyRichTextEditor *weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        long backgroundCharTypedSeqNum = weakSelf.charTypedSeqNum;
+        NSMutableArray *segmentsCopy = [weakSelf.segments mutableCopy];
+        NSString *textCopy = [weakSelf.text copy];
+        NSRange selectedRangeCopy = selectedRange;
         
-    NSRange bothRanges;
-    if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
-        bothRanges = NSUnionRange(oldRange, newRange);
-    }
-    else if (newRange.length>0 || newRange.location>0) {
-        bothRanges = newRange;
-    }
-    else if (oldRange.length>0 || oldRange.location>0) {
-        bothRanges = oldRange;
-    }
-    else {
-        // should never get here
-        NSAssert(NO, @"");
-    }
-
-    date = [NSDate date];
-
-    t = [[NSDate date] timeIntervalSinceDate:date];
-    NSArray *segments = [self.helper segmentsForRange:bothRanges fromSegments:self.segments];
-    NSLog(@"segments %f",t);
-
-    t = [[NSDate date] timeIntervalSinceDate:date];
-
-    // scroll fix from http://stackoverflow.com/questions/16716525/replace-uitextviews-text-with-attributed-string
-    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-        self.scrollEnabled = NO;
-    }
-    
-    NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
-    [attrString applySegments:segments colorsDic:self.colorsDic];
-    
-    [self setAttributedText:attrString];
-    
-    t = [[NSDate date] timeIntervalSinceDate:date];
-    NSLog(@"attr strings %f",t);
+        [weakSelf.parser parseText:textCopy segment:segmentsCopy keywords:weakSelf.keywordsDic];
+        segmentsCopy = [[segmentsCopy sortedArrayUsingDescriptors:@[weakSelf.helper.sortDesc]] mutableCopy];
+        
+        NSDictionary *newSegment = [weakSelf.helper segmentForRange:range fromSegments:segmentsCopy];
+        NSRange newRange = NSMakeRange([newSegment[@"location"] integerValue], [newSegment[@"length"] integerValue]);
+        
+        NSRange bothRanges;
+        if ((oldRange.length>0 || oldRange.location>0) && (newRange.length>0 || newRange.location>0)) {
+            bothRanges = NSUnionRange(oldRange, newRange);
+        }
+        else if (newRange.length>0 || newRange.location>0) {
+            bothRanges = newRange;
+        }
+        else if (oldRange.length>0 || oldRange.location>0) {
+            bothRanges = oldRange;
+        }
+        else {
+            // should never get here
+            NSAssert(NO, @"");
+        }
+        
+        segmentsCopy = [weakSelf.helper segmentsForRange:bothRanges fromSegments:segmentsCopy];
+        
+        weakSelf.completionHandler(backgroundCharTypedSeqNum, segmentsCopy, selectedRangeCopy);
+    });
 
     // backspace pressed
     if ([text isEqualToString:@""]) {
@@ -224,11 +241,7 @@
     else {
         textView.selectedRange = NSMakeRange(selectedRange.location+text.length, 0);
     }
-    
-    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-        self.scrollEnabled = YES;
-    }
-    
+
     return NO;
 }
 
